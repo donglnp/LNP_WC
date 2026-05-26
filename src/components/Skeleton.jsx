@@ -9,95 +9,138 @@ export function Skeleton({ className = "" }) {
 }
 
 // Skeleton for Dashboard Page
+function PanelSkeleton({ titleWidth = "w-24", action, children }) {
+  return (
+    <section className="rounded-lg border border-arena-border bg-arena-surface">
+      <header className="px-5 py-3 border-b border-arena-border flex items-center">
+        <Skeleton className={`h-3.5 ${titleWidth}`} />
+        {action}
+      </header>
+      <div className="p-5">{children}</div>
+    </section>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
-    <div className="grid lg:grid-cols-[1fr_320px] gap-6 animate-pulse">
+    <div className="grid lg:grid-cols-[1fr_320px] gap-4 sm:gap-6 animate-pulse">
       {/* Main section */}
       <section className="space-y-6">
         {/* Up Next Panel skeleton */}
-        <div className="rounded-lg border border-arena-border bg-arena-surface p-5">
-          <div className="flex items-center gap-2 mb-5">
-            <Skeleton className="h-3 w-3" />
-            <Skeleton className="h-4 w-28" />
-            <span className="ml-auto h-px flex-1 bg-arena-border/50" />
-            <Skeleton className="h-3 w-40" />
+        <PanelSkeleton
+          titleWidth="w-20"
+          action={<Skeleton className="ml-auto h-2.5 w-32" />}
+        >
+          {/* Countdown / meta line */}
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 mb-5">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3 w-3" />
+              <Skeleton className="h-3 w-28" />
+              <span className="hidden sm:block ml-auto h-px flex-1 bg-arena-border/50" />
+            </div>
+            <Skeleton className="h-3 w-48 sm:ml-auto" />
           </div>
 
-          <div className="grid grid-cols-[1fr_auto_1fr] gap-6 items-center py-4">
-            {/* Home team */}
+          {/* Mobile layout */}
+          <div className="sm:hidden space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-12 rounded-md" />
+                <Skeleton className="h-5 w-10" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-10" />
+                <Skeleton className="h-8 w-12 rounded-md" />
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Skeleton className="h-12 w-12 rounded-md" />
+              <span className="text-arena-muted text-sm opacity-40">vs</span>
+              <Skeleton className="h-12 w-12 rounded-md" />
+            </div>
+          </div>
+
+          {/* Desktop layout */}
+          <div className="hidden sm:grid grid-cols-[1fr_auto_1fr] gap-6 items-center">
             <div className="flex items-center gap-3 justify-end">
-              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-6 w-14" />
               <Skeleton className="h-8 w-12 rounded-md" />
             </div>
-            {/* Score box */}
             <div className="flex items-center gap-3">
               <Skeleton className="h-16 w-16 rounded-md" />
-              <span className="text-arena-muted text-sm font-semibold opacity-40">vs</span>
+              <span className="text-arena-muted text-sm opacity-40">vs</span>
               <Skeleton className="h-16 w-16 rounded-md" />
             </div>
-            {/* Away team */}
             <div className="flex items-center gap-3 justify-start">
               <Skeleton className="h-8 w-12 rounded-md" />
-              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-6 w-14" />
             </div>
           </div>
 
           <Skeleton className="mt-8 h-11 w-full rounded-md" />
-        </div>
+        </PanelSkeleton>
 
         {/* Later Today Panel skeleton */}
-        <div className="rounded-lg border border-arena-border bg-arena-surface p-5">
-          <div className="h-4 w-32 mb-4 bg-arena-card/80 rounded" />
-          <div className="space-y-4">
+        <PanelSkeleton titleWidth="w-28">
+          <ul className="divide-y divide-arena-border">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-4 py-2 border-b border-arena-border/30 last:border-0">
-                <Skeleton className="h-3 w-10" />
-                <Skeleton className="h-6 w-9 rounded-sm" />
-                <Skeleton className="h-4 w-8" />
-                <span className="text-arena-muted opacity-40 text-xs">vs</span>
-                <Skeleton className="h-4 w-8" />
-                <Skeleton className="h-6 w-9 rounded-sm" />
-                <Skeleton className="ml-auto h-5 w-24 rounded" />
-              </div>
+              <li
+                key={i}
+                className="py-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4"
+              >
+                <div className="flex items-center justify-between sm:contents">
+                  <Skeleton className="h-3 w-10" />
+                  <Skeleton className="sm:hidden h-5 w-16 rounded" />
+                </div>
+                <div className="flex items-center gap-2 sm:gap-4 sm:flex-1">
+                  <Skeleton className="h-5 w-7 rounded-sm" />
+                  <Skeleton className="h-4 w-10" />
+                  <span className="text-arena-muted text-xs opacity-40">vs</span>
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="h-5 w-7 rounded-sm" />
+                </div>
+                <span className="hidden sm:flex items-center gap-2 ml-auto">
+                  <Skeleton className="h-3.5 w-10" />
+                  <Skeleton className="h-5 w-16 rounded" />
+                </span>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </PanelSkeleton>
       </section>
 
       {/* Sidebar section */}
       <aside className="space-y-6">
         {/* My Stats Panel skeleton */}
-        <div className="rounded-lg border border-arena-border bg-arena-surface p-5">
-          <div className="h-4 w-24 mb-4 bg-arena-card/80 rounded" />
+        <PanelSkeleton titleWidth="w-20">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Skeleton className="h-2 w-16 mb-2" />
-              <Skeleton className="h-8 w-12" />
+              <Skeleton className="h-2.5 w-20 mb-1" />
+              <Skeleton className="h-7 w-12 mt-1" />
             </div>
             <div>
-              <Skeleton className="h-2 w-16 mb-2" />
-              <Skeleton className="h-8 w-12" />
+              <Skeleton className="h-2.5 w-20 mb-1" />
+              <Skeleton className="h-7 w-12 mt-1" />
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-arena-border/35">
-            <Skeleton className="h-2.5 w-14 mb-2" />
-            <Skeleton className="h-9 w-20" />
+          <div className="mt-4">
+            <Skeleton className="h-2.5 w-16 mb-2" />
+            <Skeleton className="h-9 w-16" />
           </div>
-        </div>
+        </PanelSkeleton>
 
         {/* Top 5 Panel skeleton */}
-        <div className="rounded-lg border border-arena-border bg-arena-surface p-5">
-          <div className="h-4 w-20 mb-4 bg-arena-card/80 rounded" />
-          <div className="space-y-3">
+        <PanelSkeleton titleWidth="w-16">
+          <ul className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-3">
+              <li key={i} className="flex items-center gap-3">
                 <Skeleton className="h-3.5 w-4" />
-                <Skeleton className="h-3.5 flex-1 max-w-[120px]" />
-                <Skeleton className="ml-auto h-3.5 w-10" />
-              </div>
+                <Skeleton className="h-3.5 flex-1 max-w-[140px]" />
+                <Skeleton className="ml-auto h-3 w-12" />
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </PanelSkeleton>
       </aside>
     </div>
   );

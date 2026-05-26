@@ -39,6 +39,20 @@ export default function RulesModal({ onClose }) {
           </header>
 
           <div className="p-6 space-y-8">
+            <Section title={t("rules.section_prizes")}>
+              <div className="rounded-md border border-dashed border-arena-amber/40 bg-arena-amber/5 px-4 py-3 flex items-center gap-3">
+                <span className="text-arena-amber text-lg">🏆</span>
+                <div className="flex-1">
+                  <p className="text-sm text-arena-text/90">
+                    {t("rules.prizes_updating")}
+                  </p>
+                </div>
+                <span className="text-[10px] tracking-[0.25em] uppercase text-arena-amber border border-arena-amber/40 rounded px-2 py-1">
+                  TBD
+                </span>
+              </div>
+            </Section>
+
             <Section title={t("rules.section_scoring")}>
               <ScoringRow
                 points={t("rules.pts_exact")}
@@ -77,20 +91,6 @@ export default function RulesModal({ onClose }) {
               <BulletList
                 items={[t("rules.fairplay_1"), t("rules.fairplay_2")]}
               />
-            </Section>
-
-            <Section title={t("rules.section_prizes")}>
-              <div className="rounded-md border border-dashed border-arena-amber/40 bg-arena-amber/5 px-4 py-3 flex items-center gap-3">
-                <span className="text-arena-amber text-lg">🏆</span>
-                <div className="flex-1">
-                  <p className="text-sm text-arena-text/90">
-                    {t("rules.prizes_updating")}
-                  </p>
-                </div>
-                <span className="text-[10px] tracking-[0.25em] uppercase text-arena-amber border border-arena-amber/40 rounded px-2 py-1">
-                  TBD
-                </span>
-              </div>
             </Section>
           </div>
         </div>
