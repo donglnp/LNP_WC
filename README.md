@@ -139,10 +139,52 @@ supabase/
   schema.sql               full schema (tables, RLS, view, trigger, realtime)
 ```
 
+## Deploy to Vercel
+
+The repo already ships everything Vercel needs:
+
+- `api/fd/[...path].js` — Edge function that proxies `/api/fd/*` to
+  football-data.org with the `X-Auth-Token` header (token stays server-side).
+- `vercel.json` — SPA rewrites so deep links (`/matches`, `/leaderboard`) hit
+  `index.html` and React Router takes over.
+
+### Steps
+
+1. **Push to GitHub**
+   ```bash
+   git remote add origin https://github.com/<you>/<repo>.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+2. **Import the repo on Vercel** → <https://vercel.com/new>. Vercel
+   auto-detects Vite; no build settings to touch.
+
+3. **Set environment variables** (Project Settings → Environment Variables):
+
+   | Name | Value | Scope |
+   |---|---|---|
+   | `VITE_SUPABASE_URL` | `https://<project-ref>.supabase.co` | Production, Preview |
+   | `VITE_SUPABASE_ANON_KEY` | publishable / anon key | Production, Preview |
+   | `FD_TOKEN` | football-data.org token (server-side only) | Production, Preview |
+
+   Notes:
+   - `VITE_*` vars are inlined at build time (safe = `VITE_SUPABASE_ANON_KEY`).
+   - `FD_TOKEN` is **not** `VITE_*` — only the serverless function reads it,
+     so it never reaches the browser.
+   - The client always calls `/api/fd/*`; override with `VITE_FD_PROXY` only
+     if you host the proxy elsewhere.
+
+4. **Add the production URL to Supabase** → Authentication → URL Configuration:
+   - Site URL: `https://<your-app>.vercel.app`
+   - Redirect URLs: add `https://<your-app>.vercel.app/**`
+
+5. **Deploy.** Done.
+
 ## Production checklist
 
+- [ ] Push to GitHub + import to Vercel
+- [ ] Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `FD_TOKEN` on Vercel
 - [ ] Run `schema.sql` in your Supabase project
-- [ ] Enable Google provider + add OAuth callback URL
-- [ ] Add prod origin to Supabase *Redirect URLs* allow-list
-- [ ] Deploy a `/api/fd` proxy and set `VITE_FD_PROXY`
+- [ ] Add the Vercel URL to Supabase *Site URL* + *Redirect URLs*
 - [ ] Set up a job (manual or cron) to write into `match_results` as matches finish
