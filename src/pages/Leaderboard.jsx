@@ -43,10 +43,11 @@ export default function Leaderboard({ user }) {
           <KPI label={t("lb.your_rank")} value={me ? `#${me.rank}` : "—"} />
           <KPI label={t("lb.your_points")} value={me?.points ?? 0} />
         </div>
+
       </div>
 
-      <div className="rounded-lg border border-arena-border bg-arena-surface overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
+        <table className="w-full text-sm min-w-[340px]">
           <thead>
             <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
               <Th>{t("lb.col_rank")}</Th>
@@ -121,7 +122,7 @@ export default function Leaderboard({ user }) {
 
 function KPI({ label, value }) {
   return (
-    <div className="rounded-lg border border-arena-border bg-arena-surface px-5 py-3 min-w-[140px]">
+    <div className="rounded-lg border border-arena-border bg-arena-surface px-4 sm:px-5 py-3 min-w-[120px] sm:min-w-[140px]">
       <p className="text-[10px] tracking-[0.3em] uppercase text-arena-muted">
         {label}
       </p>
@@ -133,7 +134,7 @@ function KPI({ label, value }) {
 function Th({ children, align = "left" }) {
   return (
     <th
-      className={`px-5 py-3 font-medium ${
+      className={`px-3 sm:px-5 py-3 font-medium ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >
@@ -145,7 +146,7 @@ function Th({ children, align = "left" }) {
 function Td({ children, align = "left", mono, className = "" }) {
   return (
     <td
-      className={`px-5 py-3 ${align === "right" ? "text-right" : "text-left"} ${
+      className={`px-3 sm:px-5 py-3 ${align === "right" ? "text-right" : "text-left"} ${
         mono ? "font-mono" : ""
       } ${className}`}
     >

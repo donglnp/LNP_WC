@@ -1,10 +1,10 @@
 export default function FlagBadge({ team, size = "md", onClick }) {
   const dims =
     size === "lg"
-      ? "w-12 h-12 text-2xl"
+      ? "w-12 h-12 text-2xl sm:w-16 sm:h-16 sm:text-3xl"
       : size === "sm"
-      ? "w-6 h-6 text-xs"
-      : "w-8 h-8 text-base";
+      ? "w-8 h-8 text-sm"
+      : "w-12 h-12 text-2xl sm:w-16 sm:h-16 sm:text-3xl";
 
   const flag = team?.flag;
   const isUrl = typeof flag === "string" && /^https?:\/\//.test(flag);
@@ -13,7 +13,7 @@ export default function FlagBadge({ team, size = "md", onClick }) {
     <img
       src={flag}
       alt={team?.name || ""}
-      className="w-full h-full object-contain p-1"
+      className="w-full h-full object-contain"
       loading="lazy"
       onError={(e) => {
         e.currentTarget.replaceWith(
@@ -27,7 +27,7 @@ export default function FlagBadge({ team, size = "md", onClick }) {
     <span>{flag || "🏳️"}</span>
   );
 
-  const baseCls = `${dims} grid place-items-center rounded-full bg-arena-card border border-arena-border overflow-hidden`;
+  const baseCls = `${dims} grid place-items-center overflow-hidden`;
 
   if (onClick) {
     return (

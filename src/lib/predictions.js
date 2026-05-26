@@ -21,7 +21,16 @@ export function getPrediction(matchId) {
   );
 }
 
-export function statusOf(p) {
+export function isMatchClosed(match, result) {
+  if (result) return true;
+  if (!match) return false;
+  if (match.status === "finished" || match.status === "live") return true;
+  if (match.kickoff && new Date(match.kickoff) <= new Date()) return true;
+  return false;
+}
+
+export function statusOf(p, match, result) {
+  if (isMatchClosed(match, result)) return "final";
   if (!p) return "pending";
   if (p.locked) return "locked";
   if (p.home != null || p.away != null) return "editing";

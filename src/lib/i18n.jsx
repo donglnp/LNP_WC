@@ -40,49 +40,19 @@ const dict = {
   "login.title_3": { en: "Predict the", vi: "Dự đoán", ja: "ワールドカップを" },
   "login.title_4": { en: "Cup.", vi: "World Cup.", ja: "予想しよう。" },
   "login.subtitle": {
-    en: "We'll email you a one-click sign-in link — no password required.",
-    vi: "Chúng tôi sẽ gửi link đăng nhập 1 chạm qua email — không cần mật khẩu.",
-    ja: "ワンクリックでサインインできるリンクをメールでお送りします。パスワード不要。",
+    en: "Sign in with your Google account — no password required.",
+    vi: "Đăng nhập bằng tài khoản Google — không cần mật khẩu.",
+    ja: "Google アカウントでサインイン — パスワード不要。",
   },
-  "login.email_label": {
-    en: "Work email",
-    vi: "Email công ty",
-    ja: "勤務先メール",
+  "login.continue_google": {
+    en: "Continue with Google",
+    vi: "Tiếp tục với Google",
+    ja: "Google で続行",
   },
-  "login.email_placeholder": {
-    en: "xxxxx@lnp-technologies.com",
-    vi: "xxxxx@lnp-technologies.com",
-    ja: "xxxxx@lnp-technologies.com",
-  },
-  "login.send": {
-    en: "Send Magic Link",
-    vi: "Gửi liên kết đăng nhập",
-    ja: "ログインリンクを送信",
-  },
-  "login.sending": {
-    en: "Sending link…",
-    vi: "Đang gửi…",
-    ja: "送信中…",
-  },
-  "login.sent_title": {
-    en: "◆ Check your inbox",
-    vi: "◆ Kiểm tra hộp thư",
-    ja: "◆ メールをご確認ください",
-  },
-  "login.sent_body": {
-    en: "We sent a magic link to {email}. Click it from this device to enter the arena.",
-    vi: "Đã gửi liên kết đến {email}. Mở liên kết trên thiết bị này để vào ứng dụng.",
-    ja: "{email} 宛にログインリンクを送信しました。このデバイスでリンクを開いてください。",
-  },
-  "login.use_diff": {
-    en: "Use a different email",
-    vi: "Dùng email khác",
-    ja: "別のメールを使う",
-  },
-  "login.err_email": {
-    en: "Enter a valid email address.",
-    vi: "Email không hợp lệ.",
-    ja: "有効なメールアドレスを入力してください。",
+  "login.signing": {
+    en: "Redirecting…",
+    vi: "Đang chuyển hướng…",
+    ja: "リダイレクト中…",
   },
   "login.err_supabase": {
     en: "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.",
@@ -173,6 +143,8 @@ const dict = {
   "matches.edit": { en: "Edit", vi: "Sửa", ja: "編集" },
   "matches.save": { en: "Save", vi: "Lưu", ja: "保存" },
   "matches.lock_in": { en: "Lock In", vi: "Khóa", ja: "ロック" },
+  "matches.closed": { en: "Closed", vi: "Đã đóng", ja: "締切" },
+  "matches.full_time": { en: "FT", vi: "KT", ja: "FT" },
   "status.locked": {
     en: "Prediction Locked",
     vi: "Đã khóa dự đoán",
@@ -180,6 +152,7 @@ const dict = {
   },
   "status.editing": { en: "Editing", vi: "Đang sửa", ja: "編集中" },
   "status.pending": { en: "Pending", vi: "Chờ", ja: "保留中" },
+  "status.final": { en: "Final", vi: "Kết thúc", ja: "終了" },
 
   // ---------- Leaderboard ----------
   "lb.title": {
@@ -266,6 +239,7 @@ const dict = {
     vi: "Dự đoán của bạn",
     ja: "あなたの予想",
   },
+  "profile.col_result": { en: "Result", vi: "Kết quả", ja: "結果" },
   "profile.col_status": { en: "Status", vi: "Trạng thái", ja: "状態" },
   "profile.col_updated": {
     en: "Updated",

@@ -33,22 +33,37 @@ export default function Profile({ user }) {
     if (!isSupabaseReady || !user?.id || !data) return;
     let alive = true;
     (async () => {
-      const { data: rows, error } = await supabase
-        .from("predictions")
-        .select("match_id, home_score, away_score, locked, updated_at")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false })
-        .limit(20);
-      if (!alive || error) return;
+      const [predRes, resRes] = await Promise.all([
+        supabase
+          .from("predictions")
+          .select("match_id, home_score, away_score, locked, updated_at")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false })
+          .limit(20),
+        supabase
+          .from("match_results")
+          .select("match_id, home_score, away_score"),
+      ]);
+      if (!alive || predRes.error) return;
       const matchById = Object.fromEntries(data.matches.map((m) => [m.id, m]));
+      const resultById = Object.fromEntries(
+        (resRes.data || []).map((r) => [r.match_id, r])
+      );
       setHistory(
-        (rows || []).map((p) => {
+        (predRes.data || []).map((p) => {
           const m = matchById[p.match_id];
+          const r = resultById[p.match_id];
           return {
             id: p.match_id,
             label: m ? `${m.home} vs ${m.away}` : p.match_id,
             predicted: `${p.home_score} - ${p.away_score}`,
+            result: r ? `${r.home_score} - ${r.away_score}` : null,
+            exact:
+              r &&
+              r.home_score === p.home_score &&
+              r.away_score === p.away_score,
             locked: p.locked,
+            final: !!r,
             updated: p.updated_at,
           };
         })
@@ -70,7 +85,7 @@ export default function Profile({ user }) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-arena-border bg-arena-surface p-6 flex items-center gap-6 flex-wrap">
+      <section className="rounded-lg border border-arena-border bg-arena-surface p-4 sm:p-6 flex items-center gap-4 sm:gap-6 flex-wrap">
         <div className="w-20 h-20 rounded-full bg-arena-card border border-arena-border grid place-items-center text-2xl font-display font-semibold text-arena-muted overflow-hidden">
           {user?.avatar ? (
             <img
@@ -86,7 +101,7 @@ export default function Profile({ user }) {
               .join("")
           )}
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="font-display text-2xl font-semibold">{user?.name}</h1>
           <p className="text-sm text-arena-muted">
             {t("profile.rank")}{" "}
@@ -110,7 +125,7 @@ export default function Profile({ user }) {
         <h2 className="text-sm font-semibold mb-5">{t("profile.accuracy_breakdown")}</h2>
         <div className="grid md:grid-cols-[200px_1fr] gap-6 items-center">
           <Donut value={accuracy} label={t("profile.accuracy")} />
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Metric
               label={t("profile.exact_matches")}
               value={me?.exact ?? 0}
@@ -130,8 +145,8 @@ export default function Profile({ user }) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-arena-border bg-arena-surface overflow-hidden">
-        <h2 className="px-6 py-4 text-sm font-semibold border-b border-arena-border">
+      <section className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
+        <h2 className="px-4 sm:px-6 py-4 text-sm font-semibold border-b border-arena-border">
           {t("profile.history")}
         </h2>
         {history.length === 0 ? (
@@ -139,14 +154,15 @@ export default function Profile({ user }) {
             {t("profile.empty")}
           </p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[340px]">
             <thead>
               <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
-                <th className="px-6 py-3 text-left font-medium">{t("profile.col_match")}</th>
-                <th className="px-6 py-3 text-left font-medium">
+                <th className="px-3 sm:px-6 py-3 text-left font-medium">{t("profile.col_match")}</th>
+                <th className="px-3 sm:px-6 py-3 text-left font-medium">
                   {t("profile.col_prediction")}
                 </th>
-                <th className="px-6 py-3 text-left font-medium">{t("profile.col_status")}</th>
+                <th className="px-3 sm:px-6 py-3 text-left font-medium">{t("profile.col_result")}</th>
+                <th className="px-3 sm:px-6 py-3 text-left font-medium">{t("profile.col_status")}</th>
                 <th className="px-6 py-3 text-right font-medium">{t("profile.col_updated")}</th>
               </tr>
             </thead>
@@ -156,20 +172,37 @@ export default function Profile({ user }) {
                   key={h.id}
                   className="border-b border-arena-border/60 last:border-0"
                 >
-                  <td className="px-6 py-3">{h.label}</td>
-                  <td className="px-6 py-3 font-mono">{h.predicted}</td>
-                  <td className="px-6 py-3">
+                  <td className="px-3 sm:px-6 py-3">{h.label}</td>
+                  <td className="px-3 sm:px-6 py-3 font-mono">{h.predicted}</td>
+                  <td
+                    className={`px-3 sm:px-6 py-3 font-mono ${
+                      h.result
+                        ? h.exact
+                          ? "text-arena-green"
+                          : "text-arena-text"
+                        : "text-arena-muted"
+                    }`}
+                  >
+                    {h.result || "—"}
+                  </td>
+                  <td className="px-3 sm:px-6 py-3">
                     <span
                       className={`text-[10px] tracking-[0.2em] uppercase px-2 py-1 rounded ${
-                        h.locked
+                        h.final
+                          ? "text-arena-text border border-arena-border bg-arena-border/30"
+                          : h.locked
                           ? "text-arena-green border border-arena-green/30 bg-arena-green/10"
                           : "text-arena-muted border border-arena-border"
                       }`}
                     >
-                      {h.locked ? t("profile.status_locked") : t("profile.status_editing")}
+                      {h.final
+                        ? t("status.final")
+                        : h.locked
+                        ? t("profile.status_locked")
+                        : t("profile.status_editing")}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-right text-arena-muted text-xs">
+                  <td className="px-3 sm:px-6 py-3 text-right text-arena-muted text-xs">
                     {new Date(h.updated).toLocaleString()}
                   </td>
                 </tr>

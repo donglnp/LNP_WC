@@ -3,10 +3,12 @@ import FlagBadge from "../components/FlagBadge";
 import { useWorldCup } from "../lib/useWorldCup";
 import {
   getPrediction,
+  isMatchClosed,
   loadMyPredictions,
   onPredictionsChange,
   savePrediction,
 } from "../lib/predictions";
+import { getResult, loadResults, onResultsChange } from "../lib/results";
 import { fetchLeaderboard, fetchMyRow, subscribeLeaderboard } from "../lib/leaderboard";
 import { useT } from "../lib/i18n";
 import { DashboardSkeleton } from "../components/Skeleton";
@@ -20,8 +22,13 @@ export default function Dashboard({ user }) {
 
   useEffect(() => {
     if (user?.id) loadMyPredictions(user.id).then(() => force((n) => n + 1));
-    const off = onPredictionsChange(() => force((n) => n + 1));
-    return off;
+    loadResults().then(() => force((n) => n + 1));
+    const offP = onPredictionsChange(() => force((n) => n + 1));
+    const offR = onResultsChange(() => force((n) => n + 1));
+    return () => {
+      offP();
+      offR();
+    };
   }, [user?.id]);
 
   useEffect(() => {
@@ -41,12 +48,12 @@ export default function Dashboard({ user }) {
   const sorted = [...matches].sort(
     (a, b) => new Date(a.kickoff) - new Date(b.kickoff)
   );
-  const upcoming = sorted.filter((m) => m.status !== "finished");
-  const upNext = upcoming[0] || sorted[0];
+  const upcoming = sorted.filter((m) => !isMatchClosed(m, getResult(m.id)));
+  const upNext = upcoming[0];
   const later = upcoming.slice(1, 4);
 
   return (
-    <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+    <div className="grid lg:grid-cols-[1fr_320px] gap-4 sm:gap-6">
       <section className="space-y-6">
         {upNext && (
           <Panel
@@ -171,16 +178,38 @@ function UpNext({ match, teams, user }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 text-xs text-arena-green font-mono mb-5">
-        <span>◆</span>
-        <span>{t("dash.starts_in")} {countdown}</span>
-        <span className="ml-auto h-px flex-1 bg-arena-border" />
-        <span className="text-arena-muted">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 text-xs text-arena-green font-mono mb-5">
+        <div className="flex items-center gap-2">
+          <span>◆</span>
+          <span>{t("dash.starts_in")} {countdown}</span>
+          <span className="hidden sm:block ml-auto h-px flex-1 bg-arena-border" />
+        </div>
+        <span className="text-arena-muted sm:ml-auto">
           {t("dash.group")} {match.group} · ID: <span className="text-arena-green font-mono">{match.id}</span> · {new Date(match.kickoff).toLocaleDateString()}
         </span>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-6 items-center">
+      {/* Mobile: teams trên, score dưới */}
+      <div className="sm:hidden space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FlagBadge team={home} size="lg" />
+            <p className="font-display font-semibold">{home.code}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="font-display font-semibold">{away.code}</p>
+            <FlagBadge team={away} size="lg" />
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <NumberBox value={h} onChange={setH} locked={locked} />
+          <span className="text-arena-muted text-sm">vs</span>
+          <NumberBox value={a} onChange={setA} locked={locked} />
+        </div>
+      </div>
+
+      {/* Desktop: 3-column grid */}
+      <div className="hidden sm:grid grid-cols-[1fr_auto_1fr] gap-6 items-center">
         <TeamSide team={home} align="right" />
         <div className="flex items-center gap-3">
           <NumberBox value={h} onChange={setH} locked={locked} />
@@ -248,7 +277,7 @@ function TeamSide({ team, align }) {
 function NumberBox({ value, onChange, locked }) {
   return (
     <div
-      className={`w-16 h-16 grid place-items-center rounded-md border ${
+      className={`w-12 h-12 sm:w-16 sm:h-16 grid place-items-center rounded-md border ${
         locked
           ? "border-arena-border bg-arena-card text-arena-muted"
           : "border-arena-green/40 bg-arena-card"
@@ -257,11 +286,14 @@ function NumberBox({ value, onChange, locked }) {
       <input
         type="number"
         min={0}
-        max={20}
+        max={99}
         disabled={locked}
         value={value}
-        onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
-        className="w-full bg-transparent text-center text-2xl font-display font-semibold outline-none disabled:opacity-100"
+        onChange={(e) => {
+          if (e.target.value.length > 2) return;
+          onChange(parseInt(e.target.value || "0", 10));
+        }}
+        className="w-full bg-transparent text-center text-xl sm:text-2xl font-display font-semibold outline-none disabled:opacity-100 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus:[&::-webkit-inner-spin-button]:appearance-auto focus:[&::-webkit-outer-spin-button]:appearance-auto"
       />
     </div>
   );
@@ -285,19 +317,39 @@ function LaterRow({ match, teams }) {
   const p = getPrediction(match.id);
   const locked = p.locked;
   return (
-    <li className="py-3 flex items-center gap-4">
-      <span className="font-mono text-xs text-arena-muted w-12">
-        {new Date(match.kickoff).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </span>
-      <FlagBadge team={home} size="sm" />
-      <span className="text-sm font-medium w-10">{home.code}</span>
-      <span className="text-arena-muted text-xs">vs</span>
-      <span className="text-sm font-medium w-10">{away.code}</span>
-      <FlagBadge team={away} size="sm" />
-      <span className="ml-auto flex items-center gap-2">
+    <li className="py-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+      {/* Dòng 1 (mobile): time + status | Desktop: chung hàng */}
+      <div className="flex items-center justify-between sm:contents">
+        <span className="font-mono text-xs text-arena-muted whitespace-nowrap">
+          {new Date(match.kickoff).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+        <span className="sm:hidden">
+          <span
+            className={`text-[10px] tracking-[0.2em] uppercase px-2 py-1 rounded ${
+              locked
+                ? "bg-arena-green/10 text-arena-green border border-arena-green/30"
+                : "bg-arena-border/40 text-arena-muted border border-arena-border"
+            }`}
+          >
+            {locked ? t("dash.locked_badge") : t("dash.pending")}
+          </span>
+        </span>
+      </div>
+
+      {/* Dòng 2 (mobile): đội vs đội | Desktop: tiếp theo sau time */}
+      <div className="flex items-center gap-2 sm:gap-4 sm:flex-1">
+        <FlagBadge team={home} size="sm" />
+        <span className="text-sm font-medium">{home.code}</span>
+        <span className="text-arena-muted text-xs">vs</span>
+        <span className="text-sm font-medium">{away.code}</span>
+        <FlagBadge team={away} size="sm" />
+      </div>
+
+      {/* Desktop only: prediction + status */}
+      <span className="hidden sm:flex items-center gap-2 ml-auto">
         {p.home != null && (
           <span className="font-mono text-sm text-arena-muted">
             {p.home} - {p.away ?? "?"}

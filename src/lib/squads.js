@@ -10,8 +10,8 @@
 
 const FD_PROXY = import.meta.env.VITE_FD_PROXY || "/api/fd";
 const FD_ENABLED = import.meta.env.DEV
-  ? Boolean(import.meta.env.VITE_FD_TOKEN)
-  : Boolean(import.meta.env.VITE_FD_PROXY);
+  ? import.meta.env.VITE_FD_ENABLED !== "0"
+  : true;
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 
 const cache = new Map();
@@ -65,6 +65,15 @@ async function loadFd(apiId) {
   };
 }
 
+async function sdbResolveId(name) {
+  if (!name) return null;
+  const res = await fetch(`${SPORTSDB_BASE}/searchteams.php?t=${encodeURIComponent(name)}`);
+  if (!res.ok) return null;
+  const json = await res.json();
+  const team = (json.teams || []).find((t) => /soccer/i.test(t.strSport));
+  return team?.idTeam || null;
+}
+
 async function loadSdb(apiId) {
   const res = await fetch(`${SPORTSDB_BASE}/lookup_all_players.php?id=${apiId}`);
   if (!res.ok) throw new Error("sdb players " + res.status);
@@ -110,13 +119,16 @@ export async function loadSquad(team) {
   if (team.apiSource === "fd" && team.apiId && FD_ENABLED) {
     try {
       result = await loadFd(team.apiId);
+      if (!result.players?.length) result = null;
     } catch (e) {
       console.warn("[squads] fd failed:", e.message);
     }
   }
-  if (!result && team.apiSource === "sdb" && team.apiId) {
+  if (!result && team.apiId && (team.apiSource === "sdb" || team.name)) {
     try {
-      result = await loadSdb(team.apiId);
+      const sdbId = team.apiSource === "sdb" ? team.apiId : await sdbResolveId(team.name);
+      if (sdbId) result = await loadSdb(sdbId);
+      if (result && !result.players?.length) result = null;
     } catch (e) {
       console.warn("[squads] sdb failed:", e.message);
     }

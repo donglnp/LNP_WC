@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sendMagicLink } from "../lib/auth";
+import { signInWithGoogle } from "../lib/auth";
 import { isSupabaseReady } from "../lib/supabase";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import RulesModal from "../components/RulesModal";
@@ -7,37 +7,29 @@ import { useT } from "../lib/i18n";
 
 export default function Login() {
   const { t } = useT();
-  const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
   const [rulesOpen, setRulesOpen] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleGoogleSignIn() {
     if (!isSupabaseReady) {
       setError(t("login.err_supabase"));
       setStatus("error");
       return;
     }
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setError(t("login.err_email"));
-      setStatus("error");
-      return;
-    }
-    setStatus("sending");
+    setStatus("signing");
     setError(null);
     try {
-      await sendMagicLink(email.trim());
-      setStatus("sent");
+      await signInWithGoogle();
     } catch (e) {
-      setError(e.message || "Failed to send magic link.");
+      setError(e.message || "Failed to sign in with Google.");
       setStatus("error");
     }
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[420px_1fr]">
-      <aside className="relative px-10 py-10 flex flex-col">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[460px_1fr]">
+      <aside className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-arena-green shadow-[0_0_8px_#22E27A]" />
@@ -49,7 +41,7 @@ export default function Login() {
         </div>
 
         <div className="flex-1 flex flex-col justify-center max-w-sm">
-          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl font-semibold leading-[1.05] tracking-tight">
             {t("login.title_1")}
             <br />
             {t("login.title_2")}
@@ -69,80 +61,49 @@ export default function Login() {
             </button>
           </p>
 
-          {status === "sent" ? (
-            <div className="mt-8 rounded-md border border-arena-green/40 bg-arena-green/10 p-5">
-              <p className="text-arena-green font-semibold text-sm tracking-wide">
-                {t("login.sent_title")}
-              </p>
-              <p className="mt-2 text-sm text-arena-text/90">
-                {t("login.sent_body", { email })
-                  .split(email)
-                  .flatMap((part, i, arr) =>
-                    i < arr.length - 1
-                      ? [
-                          part,
-                          <span key={i} className="font-mono">
-                            {email}
-                          </span>,
-                        ]
-                      : [part]
-                  )}
-              </p>
-              <button
-                onClick={() => {
-                  setStatus("idle");
-                  setEmail("");
-                }}
-                className="mt-4 text-xs text-arena-muted hover:text-arena-text underline"
-              >
-                {t("login.use_diff")}
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="mt-8 space-y-3">
-              <label className="block">
-                <span className="text-[10px] tracking-[0.3em] uppercase text-arena-muted">
-                  {t("login.email_label")}
-                </span>
-                <input
-                  type="email"
-                  autoFocus
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("login.email_placeholder")}
-                  className="mt-2 w-full rounded-md bg-arena-card border border-arena-border px-4 py-3 text-sm text-arena-text placeholder:text-arena-muted focus:outline-none focus:border-arena-green/60"
-                  disabled={status === "sending"}
+          <div className="mt-8 space-y-3">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={status === "signing" || !isSupabaseReady}
+              className="inline-flex items-center justify-center gap-3 w-full rounded-md bg-arena-text text-arena-bg px-5 py-3 text-sm font-semibold tracking-[0.18em] uppercase hover:brightness-110 transition disabled:opacity-50"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09Z"
                 />
-              </label>
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.99.66-2.25 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.78.43 3.46 1.18 4.95l3.66-2.84Z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z"
+                />
+              </svg>
+              <span>
+                {status === "signing"
+                  ? t("login.signing")
+                  : t("login.continue_google")}
+              </span>
+            </button>
 
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="inline-flex items-center justify-center gap-2 w-full rounded-md bg-arena-green text-arena-bg px-5 py-3 text-sm font-semibold tracking-[0.18em] uppercase hover:brightness-110 transition disabled:opacity-50"
-              >
-                {status === "sending" ? (
-                  t("login.sending")
-                ) : (
-                  <>
-                    <span>◈</span>
-                    <span>{t("login.send")}</span>
-                  </>
-                )}
-              </button>
-
-              {error && (
-                <p className="text-xs text-arena-red border border-arena-red/30 bg-arena-red/10 rounded px-3 py-2">
-                  {error}
-                </p>
-              )}
-              {!isSupabaseReady && (
-                <p className="text-[11px] text-arena-muted">
-                  {t("login.env_missing")}
-                </p>
-              )}
-            </form>
-          )}
+            {error && (
+              <p className="text-xs text-arena-red border border-arena-red/30 bg-arena-red/10 rounded px-3 py-2">
+                {error}
+              </p>
+            )}
+            {!isSupabaseReady && (
+              <p className="text-[11px] text-arena-muted">
+                {t("login.env_missing")}
+              </p>
+            )}
+          </div>
         </div>
 
         <p className="text-[10px] text-arena-muted tracking-[0.3em] uppercase">

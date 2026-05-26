@@ -6,15 +6,12 @@ export async function getSession() {
   return data.session;
 }
 
-export async function sendMagicLink(email) {
+export async function signInWithGoogle() {
   if (!isSupabaseReady) throw new Error("Supabase not configured");
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
     options: {
-      // Where Supabase should redirect the browser after the user clicks
-      // the email link. Must be in the project's Redirect URLs allow-list.
-      emailRedirectTo: `${window.location.origin}/`,
-      shouldCreateUser: true,
+      redirectTo: `${window.location.origin}/`,
     },
   });
   if (error) throw error;
