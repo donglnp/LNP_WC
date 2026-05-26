@@ -23,8 +23,12 @@ const FD_PROXY = import.meta.env.VITE_FD_PROXY || "/api/fd";
 // Try football-data unless explicitly disabled (e.g. dev without a token).
 // On a 5xx from the proxy (no token configured), we silently fall through to
 // TheSportsDB and then mock.
+// Dev: there's no way for the browser to know if the proxy has a token; we
+// rely on the user setting VITE_FD_ENABLED=1 or just always try and fall back.
+// Prod: the serverless function exists; if FD_TOKEN is missing it returns 500
+// and we fall through to TheSportsDB / mock.
 const FD_ENABLED = import.meta.env.DEV
-  ? Boolean(import.meta.env.VITE_FD_TOKEN)
+  ? import.meta.env.VITE_FD_ENABLED !== "0"
   : true;
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 

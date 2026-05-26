@@ -4,7 +4,9 @@ import react from "@vitejs/plugin-react";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const fdToken = env.VITE_FD_TOKEN;
+  // Same name as the Vercel serverless function (api/fd/[...path].js) reads.
+  // No VITE_ prefix → never inlined into the client bundle.
+  const fdToken = env.FD_TOKEN || env.VITE_FD_TOKEN;
 
   return {
     plugins: [react()],
