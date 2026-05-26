@@ -55,7 +55,7 @@ one-click URL; clicking it from the same device drops the user into the app.
 
 #### Limiting to your company domain (optional)
 
-If you only want `@lnp.co` employees to sign in, add a check in the SQL
+If you only want `@lnp-technologies.com` employees to sign in, add a check in the SQL
 editor:
 
 ```sql
@@ -63,7 +63,7 @@ create or replace function public.enforce_company_domain()
 returns trigger language plpgsql security definer as $$
 begin
   if new.email !~* '@lnp\\.co$' then
-    raise exception 'Only @lnp.co addresses are allowed';
+    raise exception 'Only @lnp-technologies.com addresses are allowed';
   end if;
   return new;
 end $$;

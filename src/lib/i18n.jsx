@@ -50,9 +50,9 @@ const dict = {
     ja: "勤務先メール",
   },
   "login.email_placeholder": {
-    en: "you@lnp.co",
-    vi: "ban@lnp.co",
-    ja: "you@lnp.co",
+    en: "xxxxx@lnp-technologies.com",
+    vi: "xxxxx@lnp-technologies.com",
+    ja: "xxxxx@lnp-technologies.com",
   },
   "login.send": {
     en: "Send Magic Link",
