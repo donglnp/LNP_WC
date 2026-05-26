@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchLeaderboard, subscribeLeaderboard } from "../lib/leaderboard";
 import { useT } from "../lib/i18n";
+import { LeaderboardSkeleton } from "../components/Skeleton";
 
 export default function Leaderboard({ user }) {
   const { t } = useT();
@@ -22,6 +23,8 @@ export default function Leaderboard({ user }) {
       off();
     };
   }, []);
+
+  if (loading) return <LeaderboardSkeleton />;
 
   const me = rows.find((r) => r.user_id === user?.id);
 
@@ -54,14 +57,8 @@ export default function Leaderboard({ user }) {
             </tr>
           </thead>
           <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-arena-muted">
-                  {t("common.loading")}
-                </td>
-              </tr>
-            )}
-            {!loading && rows.length === 0 && (
+
+            {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-arena-muted">
                   {t("lb.empty")}

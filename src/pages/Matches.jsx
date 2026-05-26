@@ -11,6 +11,7 @@ import {
 import { useT } from "../lib/i18n";
 import Bracket from "../components/Bracket";
 import TeamSheet from "../components/TeamSheet";
+import { MatchesSkeleton } from "../components/Skeleton";
 
 export default function Matches({ user }) {
   const { t } = useT();
@@ -26,20 +27,27 @@ export default function Matches({ user }) {
     return off;
   }, [user?.id]);
 
-  if (loading || !data) return <Skeleton />;
-  const { teams, matches, source } = data;
+  const { teams = {}, matches = [], source = {} } = data || {};
 
-  const groups = uniqueGroups(matches);
-  const tabs = ["All", ...groups, "Knockouts"];
+  const groups = useMemo(() => {
+    if (!data) return [];
+    return uniqueGroups(matches);
+  }, [data, matches]);
 
-  const filtered = matches.filter((m) => {
-    if (tab === "All") return true;
-    if (tab === "Knockouts")
-      return !m.group || m.group === "—" || /R\d|FINAL|SEMI|QUARTER/i.test(m.group);
-    return m.group === tab;
-  });
+  const tabs = useMemo(() => ["All", ...groups, "Knockouts"], [groups]);
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    return matches.filter((m) => {
+      if (tab === "All") return true;
+      if (tab === "Knockouts")
+        return !m.group || m.group === "—" || /R\d|FINAL|SEMI|QUARTER/i.test(m.group);
+      return m.group === tab;
+    });
+  }, [data, matches, tab]);
 
   const groupedByTime = useMemo(() => {
+    if (!data) return [];
     const map = new Map();
     [...filtered]
       .sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff))
@@ -55,7 +63,9 @@ export default function Matches({ user }) {
         map.get(k).push(m);
       });
     return [...map.entries()];
-  }, [filtered]);
+  }, [filtered, data]);
+
+  if (loading || !data) return <MatchesSkeleton />;
 
   return (
     <div className="rounded-lg border border-arena-green/40 bg-[radial-gradient(ellipse_at_top,_#0d1f15_0%,_#070A0E_60%)] p-6">
@@ -207,7 +217,7 @@ function MatchCard({ match, teams, user, onTeamClick }) {
     <div className={`rounded-lg border ${ringClass} bg-arena-surface p-4`}>
       <div className="flex justify-between items-center text-[10px] tracking-[0.2em] uppercase mb-3">
         <span className="text-arena-muted">
-          {t("dash.group")} {match.group}
+          {t("dash.group")} {match.group} · ID: <span className="text-arena-green font-mono">{match.id}</span>
           <span className="ml-2 font-mono">
             ·{" "}
             {new Date(match.kickoff).toLocaleTimeString([], {
@@ -307,8 +317,4 @@ function StatusBadge({ status }) {
   );
 }
 
-function Skeleton() {
-  return (
-    <div className="rounded-lg border border-arena-border bg-arena-surface h-96 animate-pulse" />
-  );
-}
+

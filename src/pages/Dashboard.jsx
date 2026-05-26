@@ -9,6 +9,7 @@ import {
 } from "../lib/predictions";
 import { fetchLeaderboard, fetchMyRow, subscribeLeaderboard } from "../lib/leaderboard";
 import { useT } from "../lib/i18n";
+import { DashboardSkeleton } from "../components/Skeleton";
 
 export default function Dashboard({ user }) {
   const { t } = useT();
@@ -34,7 +35,7 @@ export default function Dashboard({ user }) {
     return off;
   }, [user?.id]);
 
-  if (loading || !data) return <Skeleton />;
+  if (loading || !data) return <DashboardSkeleton />;
 
   const { teams, matches, source } = data;
   const sorted = [...matches].sort(
@@ -175,7 +176,7 @@ function UpNext({ match, teams, user }) {
         <span>{t("dash.starts_in")} {countdown}</span>
         <span className="ml-auto h-px flex-1 bg-arena-border" />
         <span className="text-arena-muted">
-          {t("dash.group")} {match.group} · {new Date(match.kickoff).toLocaleDateString()}
+          {t("dash.group")} {match.group} · ID: <span className="text-arena-green font-mono">{match.id}</span> · {new Date(match.kickoff).toLocaleDateString()}
         </span>
       </div>
 
@@ -316,11 +317,3 @@ function LaterRow({ match, teams }) {
   );
 }
 
-function Skeleton() {
-  return (
-    <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-      <div className="h-72 rounded-lg border border-arena-border bg-arena-surface animate-pulse" />
-      <div className="h-72 rounded-lg border border-arena-border bg-arena-surface animate-pulse" />
-    </div>
-  );
-}
