@@ -16,9 +16,9 @@ const dict = {
     ja: "◆ システム稼働中",
   },
   "common.copyright": {
-    en: "© 2026 Internal Corporate Systems",
-    vi: "© 2026 Hệ thống nội bộ doanh nghiệp",
-    ja: "© 2026 社内システム",
+    en: "© 2026 LNP Technologies Inc.",
+    vi: "© 2026 LNP Technologies Inc.",
+    ja: "© 2026 LNP Technologies Inc.",
   },
   "common.source": { en: "source", vi: "nguồn", ja: "ソース" },
   "common.loading": { en: "Loading…", vi: "Đang tải…", ja: "読み込み中…" },
