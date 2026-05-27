@@ -35,10 +35,14 @@ const dict = {
   },
 
   // ---------- Login ----------
-  "login.title_1": { en: "Enter the", vi: "Bước vào", ja: "アリーナへ" },
-  "login.title_2": { en: "Arena.", vi: "Đấu trường.", ja: "入場。" },
-  "login.title_3": { en: "Predict the", vi: "Dự đoán", ja: "ワールドカップを" },
-  "login.title_4": { en: "Cup.", vi: "World Cup.", ja: "予想しよう。" },
+  "login.headline_1": { en: "Welcome to", vi: "Chào mừng đến", ja: "ようこそ" },
+  "login.headline_2": { en: "LNP", vi: "LNP", ja: "LNP" },
+  "login.headline_3": { en: "Hub.", vi: "Hub.", ja: "Hub。" },
+  "login.tagline": {
+    en: "Internal playground for the LNP team — pick a game and play.",
+    vi: "Sân chơi nội bộ cho team LNP — chọn một game và bắt đầu.",
+    ja: "LNP チーム向けの社内プレイグラウンド — ゲームを選んで遊ぼう。",
+  },
   "login.subtitle": {
     en: "Sign in with your Google account — no password required.",
     vi: "Đăng nhập bằng tài khoản Google — không cần mật khẩu.",

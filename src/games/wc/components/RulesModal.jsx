@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useT } from "../lib/i18n";
+import { useT } from "../../../lib/i18n";
 
 export default function RulesModal({ onClose }) {
   const { t } = useT();

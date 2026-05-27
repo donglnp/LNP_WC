@@ -1,5 +1,5 @@
 import FlagBadge from "./FlagBadge";
-import { useT } from "../lib/i18n";
+import { useT } from "../../../lib/i18n";
 
 // Maps various stage labels (football-data, TheSportsDB) to canonical rounds.
 const STAGE_MAP = {

@@ -10,8 +10,8 @@ import {
 } from "../lib/predictions";
 import { getResult, loadResults, onResultsChange } from "../lib/results";
 import { fetchLeaderboard, fetchMyRow, subscribeLeaderboard } from "../lib/leaderboard";
-import { useT } from "../lib/i18n";
-import { DashboardSkeleton } from "../components/Skeleton";
+import { useT } from "../../../lib/i18n";
+import { DashboardSkeleton } from "../../../components/Skeleton";
 
 export default function Dashboard({ user }) {
   const { t } = useT();

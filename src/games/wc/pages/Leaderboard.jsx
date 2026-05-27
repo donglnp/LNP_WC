@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchLeaderboard, subscribeLeaderboard } from "../lib/leaderboard";
-import { useT } from "../lib/i18n";
-import { LeaderboardSkeleton } from "../components/Skeleton";
+import { useT } from "../../../lib/i18n";
+import { LeaderboardSkeleton } from "../../../components/Skeleton";
 
 export default function Leaderboard({ user }) {
   const { t } = useT();

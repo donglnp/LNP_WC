@@ -10,10 +10,10 @@ import {
   statusOf,
 } from "../lib/predictions";
 import { getResult, loadResults, onResultsChange } from "../lib/results";
-import { useT } from "../lib/i18n";
+import { useT } from "../../../lib/i18n";
 import Bracket from "../components/Bracket";
 import TeamSheet from "../components/TeamSheet";
-import { MatchesSkeleton } from "../components/Skeleton";
+import { MatchesSkeleton } from "../../../components/Skeleton";
 
 export default function Matches({ user }) {
   const { t } = useT();

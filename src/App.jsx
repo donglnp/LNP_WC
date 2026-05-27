@@ -1,76 +1,70 @@
-import { useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
-import Layout from "./components/Layout";
-import Dashboard from "./pages/Dashboard";
-import Matches from "./pages/Matches";
-import Leaderboard from "./pages/Leaderboard";
-import Profile from "./pages/Profile";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import { getSession, onAuthChange, userDisplay } from "./lib/auth";
-import { isSupabaseReady } from "./lib/supabase";
-import { loadMyPredictions, reset as resetPredictions } from "./lib/predictions";
+import Catalog from "./pages/Catalog";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
+import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { I18nProvider } from "./lib/i18n";
 
+const WorldCupGame = lazy(() => import("./games/wc"));
+const WellnessChallenge = lazy(() => import("./games/wellness-challenge"));
+const Admin = lazy(() => import("./pages/Admin"));
+
+function GameFallback() {
+  return (
+    <div className="min-h-screen grid place-items-center bg-arena-bg text-arena-muted text-sm">
+      Loading game…
+    </div>
+  );
+}
+
+function LoginRoute() {
+  const { user, ready } = useAuth();
+  if (!ready) return null;
+  return user ? <Navigate to="/" replace /> : <Login />;
+}
+
 export default function App() {
-  const [session, setSession] = useState(null);
-  const [bootstrapping, setBootstrapping] = useState(isSupabaseReady);
-
-  useEffect(() => {
-    let alive = true;
-    getSession().then((s) => {
-      if (!alive) return;
-      setSession(s);
-      setBootstrapping(false);
-      if (s?.user?.id) loadMyPredictions(s.user.id);
-    });
-    const unsub = onAuthChange((s) => {
-      if (!alive) return;
-      setSession(s);
-      if (s?.user?.id) loadMyPredictions(s.user.id);
-      else resetPredictions();
-    });
-    return () => {
-      alive = false;
-      unsub();
-    };
-  }, []);
-
-  const user = userDisplay(session);
-
-  if (bootstrapping) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-arena-bg text-arena-muted text-sm">
-        Loading session…
-      </div>
-    );
-  }
-
   return (
     <I18nProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <Login />}
-        />
-        {user ? (
-          <Route element={<Layout user={user} />}>
-            <Route index element={<Dashboard user={user} />} />
-            <Route path="matches" element={<Matches user={user} />} />
-            <Route path="leaderboard" element={<Leaderboard user={user} />} />
-            <Route path="profile" element={<Profile user={user} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        ) : (
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        )}
-      </Routes>
-    </BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginRoute />} />
+            <Route element={<ProtectedRoute />}>
+              <Route index element={<Catalog />} />
+              <Route
+                path="/wc/*"
+                element={
+                  <Suspense fallback={<GameFallback />}>
+                    <WorldCupGame />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/wellness-challenge/*"
+                element={
+                  <Suspense fallback={<GameFallback />}>
+                    <WellnessChallenge />
+                  </Suspense>
+                }
+              />
+              <Route element={<AdminRoute />}>
+                <Route
+                  path="/admin"
+                  element={
+                    <Suspense fallback={<GameFallback />}>
+                      <Admin />
+                    </Suspense>
+                  }
+                />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </I18nProvider>
   );
 }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signOut } from "../lib/auth";
+import { signOut } from "../../../lib/auth";
 import { fetchMyRow, subscribeLeaderboard } from "../lib/leaderboard";
 import { useWorldCup } from "../lib/useWorldCup";
 import { supabase, isSupabaseReady } from "../lib/supabase";
-import { useT } from "../lib/i18n";
+import { useT } from "../../../lib/i18n";
 
 export default function Profile({ user }) {
   const { t } = useT();

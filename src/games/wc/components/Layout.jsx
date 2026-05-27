@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import LanguageSwitcher from "./LanguageSwitcher";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 import RulesModal from "./RulesModal";
-import { useT } from "../lib/i18n";
+import { useT } from "../../../lib/i18n";
 
 export default function Layout({ user }) {
   const { t } = useT();
@@ -16,19 +16,20 @@ export default function Layout({ user }) {
     .toUpperCase();
 
   const TABS = [
-    { to: "/", label: t("nav.dashboard"), end: true },
-    { to: "/matches", label: t("nav.matches") },
-    { to: "/leaderboard", label: t("nav.leaderboard") },
+    { to: "/wc", label: t("nav.dashboard"), end: true },
+    { to: "/wc/matches", label: t("nav.matches") },
+    { to: "/wc/leaderboard", label: t("nav.leaderboard") },
   ];
 
   return (
     <div className="min-h-screen bg-arena-bg text-arena-text">
       <header className="border-b border-arena-border bg-arena-bg/80 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3 sm:gap-8">
-          <NavLink to="/" className="shrink-0 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+          <NavLink to="/" className="shrink-0 flex items-center gap-2" onClick={() => setMenuOpen(false)} title="Back to Arena">
             <span className="w-2 h-2 rounded-full bg-arena-green shadow-[0_0_8px_#22E27A]" />
             <span className="font-display font-semibold tracking-tight text-lg">
-              LNP Arena<span className="text-arena-green">.</span>
+              LNP Hub<span className="text-arena-green">.</span>
+              <span className="ml-2 text-[10px] tracking-[0.3em] uppercase text-arena-muted font-normal align-middle">World Cup</span>
             </span>
           </NavLink>
 
@@ -65,7 +66,7 @@ export default function Layout({ user }) {
             </button>
             <LanguageSwitcher variant="nav" />
             <NavLink
-              to="/profile"
+              to="/wc/profile"
               title={user?.name}
               className="w-9 h-9 rounded-full border border-arena-border bg-arena-card grid place-items-center text-xs font-semibold hover:border-arena-green/60 overflow-hidden"
               onClick={() => setMenuOpen(false)}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ageFrom, groupByPosition, loadSquad } from "../lib/squads";
 import FlagBadge from "./FlagBadge";
-import { useT } from "../lib/i18n";
-import { TeamSheetSkeleton } from "./Skeleton";
+import { useT } from "../../../lib/i18n";
+import { TeamSheetSkeleton } from "../../../components/Skeleton";
 
 export default function TeamSheet({ team, onClose }) {
   const { t } = useT();

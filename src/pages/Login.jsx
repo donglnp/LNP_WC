@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { signInWithGoogle } from "../lib/auth";
-import { isSupabaseReady } from "../lib/supabase";
+import { signInWithGoogle, isSupabaseReady } from "../lib/auth";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import RulesModal from "../components/RulesModal";
 import { useT } from "../lib/i18n";
 
 export default function Login() {
   const { t } = useT();
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
-  const [rulesOpen, setRulesOpen] = useState(false);
 
   async function handleGoogleSignIn() {
     if (!isSupabaseReady) {
@@ -34,7 +31,7 @@ export default function Login() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-arena-green shadow-[0_0_8px_#22E27A]" />
             <span className="font-display font-semibold tracking-tight">
-              LNP Arena<span className="text-arena-green">.</span>
+              LNP Hub<span className="text-arena-green">.</span>
             </span>
           </div>
           <LanguageSwitcher variant="login" />
@@ -42,23 +39,13 @@ export default function Login() {
 
         <div className="flex-1 flex flex-col justify-center max-w-sm">
           <h1 className="font-display text-4xl sm:text-5xl font-semibold leading-[1.05] tracking-tight">
-            {t("login.title_1")}
+            {t("login.headline_1")}
             <br />
-            {t("login.title_2")}
-            <br />
-            <span className="text-arena-green">{t("login.title_3")}</span>
-            <br />
-            <span className="text-arena-green">{t("login.title_4")}</span>
+            <span>{t("login.headline_2")}</span>{" "}
+            <span className="text-arena-green">{t("login.headline_3")}</span>
           </h1>
           <p className="mt-6 text-sm text-arena-muted leading-relaxed">
-            {t("login.subtitle")}{" "}
-            <button
-              type="button"
-              onClick={() => setRulesOpen(true)}
-              className="text-arena-green underline hover:brightness-110"
-            >
-              {t("rules.cta")}
-            </button>
+            {t("login.tagline")}
           </p>
 
           <div className="mt-8 space-y-3">
@@ -93,6 +80,10 @@ export default function Login() {
               </span>
             </button>
 
+            <p className="text-xs text-arena-muted">
+              {t("login.subtitle")}
+            </p>
+
             {error && (
               <p className="text-xs text-arena-red border border-arena-red/30 bg-arena-red/10 rounded px-3 py-2">
                 {error}
@@ -111,28 +102,38 @@ export default function Login() {
         </p>
       </aside>
 
-      <div className="relative hidden lg:block overflow-hidden border-l border-arena-border">
+      <div className="relative hidden lg:block overflow-hidden border-l border-arena-border bg-arena-bg">
+        <div className="absolute inset-0 bg-gradient-to-br from-arena-green/10 via-arena-bg to-arena-bg" />
+        <div className="absolute inset-0 grid-bg opacity-40" />
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0"
           style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1459865264687-595d652de67e?auto=format&fit=crop&w=1800&q=70)",
+            background:
+              "radial-gradient(circle at 70% 30%, rgba(34, 226, 122, 0.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(34, 226, 122, 0.08), transparent 50%)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-arena-bg via-arena-bg/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-arena-bg/90 via-transparent to-transparent" />
-        <div className="absolute inset-0 grid-bg opacity-50" />
         <div className="absolute bottom-8 right-8 text-right">
           <p className="text-[10px] tracking-[0.4em] uppercase text-arena-green">
             {t("common.system_online")}
           </p>
-          <p className="font-display text-5xl font-semibold text-arena-text/80">
-            2026
+          <p className="font-display text-5xl font-semibold text-arena-text/80 tracking-tight">
+            HUB
           </p>
         </div>
-      </div>
 
-      {rulesOpen && <RulesModal onClose={() => setRulesOpen(false)} />}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+          <div className="grid grid-cols-3 gap-3 opacity-60">
+            {["⚽", "💪", "🧩", "🎯", "🏆", "🎲"].map((icon, i) => (
+              <div
+                key={i}
+                className="w-16 h-16 rounded-lg border border-arena-border bg-arena-surface/60 grid place-items-center text-2xl"
+              >
+                {icon}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

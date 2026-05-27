@@ -1,14 +1,16 @@
-import { supabase, isSupabaseReady } from "./supabase";
+import { supabaseHub, isHubReady } from "./supabaseHub";
+
+export const isSupabaseReady = isHubReady;
 
 export async function getSession() {
-  if (!isSupabaseReady) return null;
-  const { data } = await supabase.auth.getSession();
+  if (!isHubReady) return null;
+  const { data } = await supabaseHub.auth.getSession();
   return data.session;
 }
 
 export async function signInWithGoogle() {
-  if (!isSupabaseReady) throw new Error("Supabase not configured");
-  const { error } = await supabase.auth.signInWithOAuth({
+  if (!isHubReady) throw new Error("Supabase not configured");
+  const { error } = await supabaseHub.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: `${window.location.origin}/`,
@@ -18,13 +20,13 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
-  if (!isSupabaseReady) return;
-  await supabase.auth.signOut();
+  if (!isHubReady) return;
+  await supabaseHub.auth.signOut();
 }
 
 export function onAuthChange(cb) {
-  if (!isSupabaseReady) return () => {};
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+  if (!isHubReady) return () => {};
+  const { data } = supabaseHub.auth.onAuthStateChange((_event, session) => {
     cb(session);
   });
   return () => data.subscription.unsubscribe();
