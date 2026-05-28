@@ -1,11 +1,35 @@
 import { Link } from "react-router-dom";
 
-export default function GameCard({ game }) {
-  const { name, description, path, icon, accent = "green", disabled } = game;
+export default function GameCard({ game, playLabel = "Play", comingSoonLabel = "Coming Soon" }) {
+  const {
+    name,
+    description,
+    path,
+    icon,
+    accent = "green",
+    disabled,
+    status,
+    statusLabel,
+    suggest,
+    suggestSubject,
+    suggestLabel,
+  } = game;
   const accentClass =
     accent === "amber"
       ? "from-arena-amber/20 to-transparent border-arena-amber/30 hover:border-arena-amber/60"
       : "from-arena-green/20 to-transparent border-arena-green/30 hover:border-arena-green/60";
+
+  let tag = playLabel;
+  let tagClass = "text-arena-muted";
+  if (suggest) {
+    tag = suggestLabel || "Suggest";
+    tagClass = "text-arena-green";
+  } else if (disabled) {
+    tag = comingSoonLabel;
+  } else if (status === "upcoming") {
+    tag = statusLabel || "Upcoming";
+    tagClass = "text-arena-amber";
+  }
 
   const body = (
     <div
@@ -15,8 +39,8 @@ export default function GameCard({ game }) {
     >
       <div className="flex items-start justify-between gap-4">
         <div className="text-3xl">{icon || "🎮"}</div>
-        <span className="text-[10px] tracking-[0.3em] uppercase text-arena-muted">
-          {disabled ? "Coming Soon" : "Play"}
+        <span className={`text-[10px] tracking-[0.3em] uppercase ${tagClass}`}>
+          {tag}
         </span>
       </div>
       <h3 className="mt-4 font-display text-xl font-semibold text-arena-text">
@@ -28,6 +52,10 @@ export default function GameCard({ game }) {
     </div>
   );
 
+  if (suggest) {
+    const subject = encodeURIComponent(suggestSubject || "New activity suggestion");
+    return <a href={`mailto:hub@lnp-technologies.com?subject=${subject}`}>{body}</a>;
+  }
   if (disabled) return body;
   return <Link to={path}>{body}</Link>;
 }

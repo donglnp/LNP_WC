@@ -1,14 +1,23 @@
-# LNP Arena · World Cup 2026
+# LNP Hub
 
-Internal React + Supabase app: employees sign in with Google, predict every
-FIFA World Cup 2026 match, and compete on a live company leaderboard.
+Internal React + Supabase platform for LNP Technologies employees. One sign-in,
+a catalog of mini-games:
+
+- 💪 **Wellness Challenge** — daily workout logs, points, photo proof, live
+  team leaderboard.
+- ⚽ **World Cup 2026** — predict every FIFA WC 2026 match, compete on a
+  company-wide leaderboard.
+- 💡 **Suggest a Game** — quick mailto link for new game ideas.
+
+UI is available in **English / Tiếng Việt / 日本語**.
 
 ## Stack
 
-- Vite + React + React Router
-- Tailwind CSS (dark + green "LNP Arena" theme)
-- Supabase (Auth, Postgres, Realtime)
-- football-data.org (or TheSportsDB) for match schedules
+- Vite + React 19 + React Router 7
+- Tailwind CSS (dark "Arena" theme)
+- Supabase (Google OAuth, Postgres, RLS, Realtime)
+- football-data.org → TheSportsDB → bundled mock (graceful fallback) for match
+  data
 
 ## Setup
 
@@ -20,49 +29,46 @@ npm run dev
 
 ### 1. Supabase project
 
-1. Create a project at <https://supabase.com>.
-2. Open **SQL editor** → paste [supabase/schema.sql](./supabase/schema.sql) →
-   Run. This creates:
-   - `profiles` (mirror of `auth.users`, auto-populated via trigger)
-   - `predictions` (per-user, per-match prediction)
-   - `match_results` (admin-populated; scoring source)
-   - `leaderboard` view (15 pts exact / 5 pts correct outcome)
-   - RLS policies and realtime publication
-3. **Project Settings → API**: copy *Project URL* + *anon/publishable key*
-   into `.env`:
+Create a project at <https://supabase.com>, then in the **SQL editor** run the
+three schema files in order:
 
-   ```
-   VITE_SUPABASE_URL=https://<project-ref>.supabase.co
-   VITE_SUPABASE_ANON_KEY=<anon or sb_publishable_...>
-   ```
+1. [supabase/hub-schema.sql](./supabase/hub-schema.sql) — shared `profiles`
+   table, auto-populated from `auth.users` via trigger, plus RLS.
+2. [supabase/wc-schema.sql](./supabase/wc-schema.sql) — World Cup
+   `predictions`, `match_results`, `leaderboard` view, realtime publication.
+3. [supabase/wellness-schema.sql](./supabase/wellness-schema.sql) — Wellness
+   Challenge `wellness_entries`, profile extensions (`gender`, `is_admin`,
+   `joined_wellness`), admin-only writes, realtime.
 
-### 2. Magic-link sign-in (email OTP)
+All three are idempotent — safe to re-run.
 
-No Google Cloud / Azure / 3rd-party config required. Supabase sends a one-time
-sign-in link directly.
+Copy your **Project URL** + **anon/publishable key** into `.env`:
 
-1. Supabase Dashboard → **Authentication → URL Configuration**:
+```
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon or sb_publishable_...>
+```
+
+### 2. Google sign-in
+
+The app uses Google OAuth (not magic link).
+
+1. Google Cloud Console → create an OAuth 2.0 Client ID (Web application).
+   - Authorized JavaScript origins: `http://localhost:5173`, your prod URL.
+   - Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`.
+2. Supabase Dashboard → **Authentication → Providers → Google**: paste Client
+   ID + Client Secret, enable.
+3. **Authentication → URL Configuration**:
    - *Site URL*: `http://localhost:5173`
-   - *Redirect URLs*: add `http://localhost:5173/**` (and your production URL
-     once you deploy)
-2. **Authentication → Email Templates → Magic Link**: optional — tweak the
-   subject/body to your liking. Default works fine.
-3. (Optional but recommended) **Authentication → Providers → Email** → enable
-   *"Confirm email"* if you want only verified addresses to sign in.
+   - *Redirect URLs*: add `http://localhost:5173/**` and your production URL.
 
-That's it. The "Send Magic Link" button on the login page will email a
-one-click URL; clicking it from the same device drops the user into the app.
-
-#### Limiting to your company domain (optional)
-
-If you only want `@lnp-technologies.com` employees to sign in, add a check in the SQL
-editor:
+#### Limit to your company domain (optional)
 
 ```sql
 create or replace function public.enforce_company_domain()
 returns trigger language plpgsql security definer as $$
 begin
-  if new.email !~* '@lnp\\.co$' then
+  if new.email !~* '@lnp-technologies\.com$' then
     raise exception 'Only @lnp-technologies.com addresses are allowed';
   end if;
   return new;
@@ -74,23 +80,47 @@ create trigger enforce_company_domain
   for each row execute function public.enforce_company_domain();
 ```
 
-### 3. Match data (football-data.org, optional)
+### 3. Bootstrap the first admin
+
+After signing in once via Google, promote yourself in the SQL editor:
+
+```sql
+update public.profiles set is_admin = true
+ where email = 'you@lnp-technologies.com';
+```
+
+Admins get access to `/admin` (manage users, log wellness entries on behalf of
+employees, etc.).
+
+### 4. Match data (World Cup, optional)
 
 football-data.org is CORS-restricted, so:
 
-- **Dev:** put your free token in `VITE_FD_TOKEN`. Vite proxies
-  `/api/fd/*` → football-data.org and injects the auth header server-side
+- **Dev:** put your free token in `VITE_FD_TOKEN`. Vite proxies `/api/fd/*` →
+  football-data.org and injects the auth header server-side
   (see [vite.config.js](./vite.config.js)).
-- **Prod:** deploy a small serverless function that proxies + adds the header,
-  then set `VITE_FD_PROXY=https://your-app.com/api/fd`.
+- **Prod:** the bundled Edge function [api/fd/[...path].js](./api/fd/) does the
+  same on Vercel; set `FD_TOKEN` (server-only, no `VITE_` prefix).
 
 If both are absent, the app falls back to TheSportsDB (no key), then to a
 bundled mock schedule.
 
-## How scoring works
+## Games
 
-The `leaderboard` SQL view (in `schema.sql`) joins `predictions` with
-`match_results`:
+### Wellness Challenge
+
+- Employees join via a flag on their profile (`joined_wellness`).
+- Admin logs one entry per user per day with: exercise type, duration, kcal,
+  device, before/after photo URLs, optional notes.
+- Custom names supported when type/device is `"other"`.
+- Guest entries: admins can log for an email before the user has ever signed
+  in — once they sign in with that email, the entries auto-link.
+- Pages: Dashboard / History / Leaderboard / Rules.
+
+### World Cup 2026
+
+Scoring (see [supabase/wc-schema.sql](./supabase/wc-schema.sql)
+`leaderboard` view):
 
 | Outcome | Points |
 |---|---|
@@ -98,69 +128,62 @@ The `leaderboard` SQL view (in `schema.sql`) joins `predictions` with
 | Correct winner / draw | 5 |
 | Wrong | 0 |
 
-Until an admin populates `match_results`, the leaderboard ranks employees by
-total points (`0`), then by exact / correct counts (`0`), then by # locked
-predictions.
-
-### Populating results
-
-Manually as matches finish:
+Populate results manually as matches finish:
 
 ```sql
 insert into match_results (match_id, home_score, away_score)
 values ('<match_id from API>', 2, 1);
 ```
 
-Or wire a small cron / edge function that pulls finished matches from
-football-data.org and inserts them.
+Or wire a cron / edge function that pulls finished matches from
+football-data.org.
 
 ## File map
 
 ```
 src/
-  App.jsx                  router + auth bootstrap
+  App.jsx                         router + auth bootstrap
   components/
-    Layout.jsx             top nav (Dashboard / Matches / Leaderboard + avatar)
-    FlagBadge.jsx          flag/crest renderer (emoji OR image URL)
+    GameCard.jsx                  catalog card
+    LanguageSwitcher.jsx          EN / VI / JA toggle
+    ProtectedRoute.jsx            requires session
+    AdminRoute.jsx                requires is_admin
+    Skeleton.jsx
   pages/
-    Login.jsx              Google SSO button
-    Dashboard.jsx          Up Next + Later Today + My Stats + Top 5
-    Matches.jsx            Match Center w/ group tabs + per-match predict cards
-    Leaderboard.jsx        live company leaderboard table
-    Profile.jsx            accuracy donut + my prediction history
+    Login.jsx                     Google SSO button
+    Catalog.jsx                   home / game picker
+    Admin.jsx                     admin console
   lib/
-    supabase.js            client (no-op if env missing)
-    auth.js                Google OAuth + session listener
-    predictions.js         CRUD + realtime + local fallback
-    leaderboard.js         view query + realtime subscription
-    wcApi.js               football-data → thesportsdb → mock fallback
-    useWorldCup.js         module-cached hook
+    AuthContext.jsx               session + isAdmin context
+    auth.js                       Google OAuth + sign-out
+    supabaseHub.js                Supabase client
+    i18n.jsx                      EN / VI / JA dictionary + hook
+  games/
+    wc/                           World Cup game (pages, lib, components)
+    wellness-challenge/           Wellness game (pages, lib, components)
 supabase/
-  schema.sql               full schema (tables, RLS, view, trigger, realtime)
+  hub-schema.sql                  profiles + shared RLS
+  wc-schema.sql                   World Cup tables + leaderboard view
+  wellness-schema.sql             Wellness entries + profile ext
+api/
+  fd/[...path].js                 Vercel Edge proxy for football-data.org
 ```
 
 ## Deploy to Vercel
 
-The repo already ships everything Vercel needs:
+The repo ships everything Vercel needs:
 
 - `api/fd/[...path].js` — Edge function that proxies `/api/fd/*` to
   football-data.org with the `X-Auth-Token` header (token stays server-side).
-- `vercel.json` — SPA rewrites so deep links (`/matches`, `/leaderboard`) hit
-  `index.html` and React Router takes over.
+- `vercel.json` — SPA rewrites so deep links (`/wc`, `/wellness-challenge`,
+  `/admin`, …) hit `index.html` and React Router takes over.
 
 ### Steps
 
-1. **Push to GitHub**
-   ```bash
-   git remote add origin https://github.com/<you>/<repo>.git
-   git branch -M main
-   git push -u origin main
-   ```
+1. **Push to GitHub**, then import the repo on Vercel
+   (<https://vercel.com/new>). Vercel auto-detects Vite.
 
-2. **Import the repo on Vercel** → <https://vercel.com/new>. Vercel
-   auto-detects Vite; no build settings to touch.
-
-3. **Set environment variables** (Project Settings → Environment Variables):
+2. **Set environment variables** (Project Settings → Environment Variables):
 
    | Name | Value | Scope |
    |---|---|---|
@@ -169,22 +192,24 @@ The repo already ships everything Vercel needs:
    | `FD_TOKEN` | football-data.org token (server-side only) | Production, Preview |
 
    Notes:
-   - `VITE_*` vars are inlined at build time (safe = `VITE_SUPABASE_ANON_KEY`).
+   - `VITE_*` vars are inlined at build time (safe = anon key only).
    - `FD_TOKEN` is **not** `VITE_*` — only the serverless function reads it,
      so it never reaches the browser.
-   - The client always calls `/api/fd/*`; override with `VITE_FD_PROXY` only
-     if you host the proxy elsewhere.
+   - Override `VITE_FD_PROXY` only if you host the proxy elsewhere.
 
-4. **Add the production URL to Supabase** → Authentication → URL Configuration:
+3. **Add the production URL to Supabase** → Authentication → URL Configuration:
    - Site URL: `https://<your-app>.vercel.app`
    - Redirect URLs: add `https://<your-app>.vercel.app/**`
+   - And register the same URL in Google Cloud Console as an authorized origin.
 
-5. **Deploy.** Done.
+4. **Deploy.** Done.
 
 ## Production checklist
 
 - [ ] Push to GitHub + import to Vercel
 - [ ] Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `FD_TOKEN` on Vercel
-- [ ] Run `schema.sql` in your Supabase project
+- [ ] Run `hub-schema.sql`, `wc-schema.sql`, `wellness-schema.sql` in Supabase
+- [ ] Configure Google OAuth provider in Supabase + Google Cloud Console
 - [ ] Add the Vercel URL to Supabase *Site URL* + *Redirect URLs*
-- [ ] Set up a job (manual or cron) to write into `match_results` as matches finish
+- [ ] Promote at least one `profiles.is_admin = true`
+- [ ] (Optional) cron / edge function to write into `match_results` as WC matches finish

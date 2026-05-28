@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../../lib/AuthContext";
+import { useT, formatNum } from "../../../lib/i18n";
 import {
   fetchAllEntries,
   fetchWellnessProfiles,
@@ -13,25 +14,30 @@ import {
   weeksMetKpi,
 } from "../lib/data";
 
-const GENDER_TABS = [
-  { value: "all", label: "Tất cả" },
-  { value: "male", label: "Nam" },
-  { value: "female", label: "Nữ" },
-];
-
-const SCOPE_TABS = [
-  { value: "month", label: "Tháng này" },
-  { value: "total", label: "Tổng 3 tháng" },
-];
-
 export default function Leaderboard() {
   const { user } = useAuth();
+  const { t, lang } = useT();
   const [profiles, setProfiles] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [gender, setGender] = useState("all");
-  const [scope, setScope] = useState("month");
   const monthInfo = currentMonthInfo();
+  const [month, setMonth] = useState(
+    [6, 7, 8].includes(monthInfo.month) ? String(monthInfo.month) : "all"
+  );
+
+  const GENDER_TABS = [
+    { value: "all", label: t("wc.lb_gender_all") },
+    { value: "male", label: t("wc.gender_male") },
+    { value: "female", label: t("wc.gender_female") },
+  ];
+
+  const MONTH_TABS = [
+    { value: "all", label: t("wc.history_filter_all") },
+    { value: "6", label: t("wc.month_6") },
+    { value: "7", label: t("wc.month_7") },
+    { value: "8", label: t("wc.month_8") },
+  ];
 
   useEffect(() => {
     let alive = true;
@@ -67,38 +73,37 @@ export default function Leaderboard() {
     return participants
       .map((p) => {
         const own = byUser.get(p.id) || [];
-        const monthKcal = sumKcalInMonth(own, monthInfo.month);
-        const totalKcal = sumKcalTotal(own);
+        const kcal =
+          month === "all"
+            ? sumKcalTotal(own)
+            : sumKcalInMonth(own, Number(month));
         return {
           id: p.id,
           name: p.full_name || p.email,
           gender: p.gender,
           avatar: p.avatar_url,
-          month_kcal: monthKcal,
-          total_kcal: totalKcal,
+          kcal,
           weeks_hit: weeksMetKpi(own, p.gender),
         };
       })
-      .sort((a, b) =>
-        scope === "month"
-          ? b.month_kcal - a.month_kcal
-          : b.total_kcal - a.total_kcal
-      )
+      .sort((a, b) => b.kcal - a.kcal)
       .map((r, i) => ({ ...r, rank: i + 1 }));
-  }, [profiles, entries, gender, scope, monthInfo.month]);
+  }, [profiles, entries, gender, month]);
 
   return (
     <div className="space-y-5">
       <header>
         <p className="text-[10px] tracking-[0.4em] uppercase text-arena-amber">
-          Bảng xếp hạng · {monthInfo.label} 2026
+          {t("wc.lb_header_meta", {
+            month:
+              month === "all"
+                ? t("wc.history_filter_all")
+                : t(`wc.month_${month}`),
+          })}
         </p>
         <h1 className="font-display text-3xl font-semibold mt-2">
-          Top calo tiêu hao
+          {t("wc.lb_title")}
         </h1>
-        <p className="text-sm text-arena-muted mt-1">
-          Người dẫn đầu mỗi giới sẽ được tặng 500.000 VND vào cuối tháng.
-        </p>
       </header>
 
       <div className="flex flex-wrap gap-3 items-center justify-between">
@@ -118,17 +123,17 @@ export default function Leaderboard() {
           ))}
         </div>
         <div className="flex gap-1 p-1 rounded-md border border-arena-border bg-arena-card">
-          {SCOPE_TABS.map((s) => (
+          {MONTH_TABS.map((m) => (
             <button
-              key={s.value}
-              onClick={() => setScope(s.value)}
+              key={m.value}
+              onClick={() => setMonth(m.value)}
               className={`px-3 py-1.5 text-xs rounded transition ${
-                scope === s.value
+                month === m.value
                   ? "bg-arena-amber text-arena-bg"
                   : "text-arena-muted hover:text-arena-text"
               }`}
             >
-              {s.label}
+              {m.label}
             </button>
           ))}
         </div>
@@ -136,35 +141,37 @@ export default function Leaderboard() {
 
       <section className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
         {loading ? (
-          <p className="py-12 text-sm text-arena-muted text-center">Đang tải…</p>
+          <p className="py-12 text-sm text-arena-muted text-center">{t("wc.loading")}</p>
         ) : rows.length === 0 ? (
           <p className="py-12 text-sm text-arena-muted text-center">
-            Chưa có người tham gia nào. Admin cần thêm thành viên vào chương trình.
+            {t("wc.lb_empty")}
           </p>
         ) : (
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
                 <th className="px-4 py-3 text-left font-medium w-16">#</th>
-                <th className="px-4 py-3 text-left font-medium">Tên</th>
-                <th className="px-4 py-3 text-left font-medium">Giới</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.lb_col_name")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.lb_col_gender")}</th>
                 <th className="px-4 py-3 text-right font-medium">
-                  {scope === "month" ? "kcal tháng" : "kcal 3 tháng"}
+                  {month === "all"
+                    ? t("wc.lb_col_kcal_total")
+                    : t("wc.lb_col_kcal_month")}
                 </th>
-                <th className="px-4 py-3 text-right font-medium">Tuần đạt KPI</th>
-                <th className="px-4 py-3 text-left font-medium">Trạng thái</th>
+                <th className="px-4 py-3 text-right font-medium">{t("wc.lb_col_weeks_hit")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.lb_col_status")}</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((u) => {
                 const isMe = u.id === user?.id;
                 const target =
-                  scope === "month"
-                    ? monthlyKpi(u.gender, monthInfo.month)
-                    : monthlyKpi(u.gender, 6) +
+                  month === "all"
+                    ? monthlyKpi(u.gender, 6) +
                       monthlyKpi(u.gender, 7) +
-                      monthlyKpi(u.gender, 8);
-                const value = scope === "month" ? u.month_kcal : u.total_kcal;
+                      monthlyKpi(u.gender, 8)
+                    : monthlyKpi(u.gender, Number(month));
+                const value = u.kcal;
                 const hitKpi = value >= target && target > 0;
                 const initials = (u.name || "?")
                   .split(" ")
@@ -200,32 +207,34 @@ export default function Leaderboard() {
                           {u.name}
                           {isMe && (
                             <span className="ml-2 text-[10px] tracking-[0.2em] uppercase text-arena-amber">
-                              · bạn
+                              {t("wc.lb_you_marker")}
                             </span>
                           )}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-xs text-arena-muted">
-                      {u.gender === "male" ? "Nam" : "Nữ"}
+                      {u.gender === "male"
+                        ? t("wc.gender_male")
+                        : t("wc.gender_female")}
                     </td>
                     <td className="px-4 py-3 text-right font-mono font-semibold">
                       <span className={hitKpi ? "text-arena-green" : "text-arena-text"}>
-                        {value.toLocaleString("vi-VN")}
+                        {formatNum(value, lang)}
                       </span>
                       <span className="text-arena-muted text-xs ml-1 font-normal">
-                        / {target.toLocaleString("vi-VN")}
+                        / {formatNum(target, lang)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">{u.weeks_hit}</td>
                     <td className="px-4 py-3">
                       {hitKpi ? (
                         <span className="text-[10px] tracking-[0.15em] uppercase px-2 py-1 rounded border text-arena-green border-arena-green/30 bg-arena-green/10">
-                          Đạt KPI
+                          {t("wc.lb_status_hit")}
                         </span>
                       ) : (
                         <span className="text-[10px] tracking-[0.15em] uppercase px-2 py-1 rounded border text-arena-muted border-arena-border">
-                          Đang cố
+                          {t("wc.lb_status_trying")}
                         </span>
                       )}
                     </td>

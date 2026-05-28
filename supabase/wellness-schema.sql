@@ -93,7 +93,50 @@ create trigger trg_wellness_entries_touch
   for each row execute function public.touch_updated_at();
 
 -- Realtime (optional — leaderboard live updates).
-alter publication supabase_realtime add table public.wellness_entries;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'wellness_entries'
+  ) then
+    alter publication supabase_realtime add table public.wellness_entries;
+  end if;
+end$$;
+
+-- ---------- guest entries (admin logs for users who haven't signed in yet) ----------
+-- user_id becomes optional; user_email is used when user hasn't logged in.
+-- Exactly one of (user_id, user_email) must be set.
+alter table public.wellness_entries
+  alter column user_id drop not null,
+  add column if not exists user_email text;
+
+alter table public.wellness_entries
+  drop constraint if exists wellness_entries_subject_check;
+alter table public.wellness_entries
+  add constraint wellness_entries_subject_check
+  check (
+    (user_id is not null and user_email is null)
+    or (user_id is null and user_email is not null)
+  );
+
+-- Replace unique(user_id, entry_date) with partial uniques per key type.
+alter table public.wellness_entries
+  drop constraint if exists wellness_entries_user_id_entry_date_key;
+
+create unique index if not exists wellness_entries_user_date_uidx
+  on public.wellness_entries (user_id, entry_date)
+  where user_id is not null;
+
+create unique index if not exists wellness_entries_email_date_uidx
+  on public.wellness_entries (lower(user_email), entry_date)
+  where user_email is not null;
+
+-- ---------- exercise_other / device_other (custom names when value='other') ----------
+alter table public.wellness_entries
+  add column if not exists exercise_other text,
+  add column if not exists device_other text;
 
 -- ---------- bootstrap first admin ----------
 -- AFTER you log in once via Google, find your auth.users id and run:

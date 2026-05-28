@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../../lib/AuthContext";
-
-const TABS = [
-  { to: "/wellness-challenge", label: "Tổng quan", end: true },
-  { to: "/wellness-challenge/history", label: "Lịch sử" },
-  { to: "/wellness-challenge/leaderboard", label: "Bảng xếp hạng" },
-  { to: "/wellness-challenge/rules", label: "Luật chơi" },
-];
+import { useT } from "../../../lib/i18n";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
 export default function WellnessLayout({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAdmin } = useAuth();
+  const { t } = useT();
+  const TABS = [
+    { to: "/wellness-challenge", label: t("wc.tab_overview"), end: true },
+    { to: "/wellness-challenge/history", label: t("wc.tab_history") },
+    { to: "/wellness-challenge/leaderboard", label: t("wc.tab_leaderboard") },
+    { to: "/wellness-challenge/rules", label: t("wc.tab_rules") },
+  ];
   const initials = (user?.name || "?")
     .split(" ")
     .map((s) => s[0])
@@ -33,7 +35,7 @@ export default function WellnessLayout({ user }) {
             <span className="font-display font-semibold tracking-tight text-lg">
               LNP Hub<span className="text-arena-amber">.</span>
               <span className="ml-2 text-[10px] tracking-[0.3em] uppercase text-arena-muted font-normal align-middle">
-                Wellness
+                {t("wc.brand_tag")}
               </span>
             </span>
           </NavLink>
@@ -58,6 +60,7 @@ export default function WellnessLayout({ user }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-3">
+            <LanguageSwitcher variant="nav" />
             {isAdmin && (
               <NavLink
                 to="/admin"

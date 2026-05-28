@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../../lib/AuthContext";
+import { useT, localeOf, formatNum } from "../../../lib/i18n";
 import { fetchMyEntries, subscribeEntries } from "../lib/wellness";
 import {
   PROGRAM,
   findDevice,
   findExercise,
-  formatDate,
 } from "../lib/data";
-
-const MONTHS = [
-  { value: "all", label: "Tất cả" },
-  { value: "6", label: "Tháng 6" },
-  { value: "7", label: "Tháng 7" },
-  { value: "8", label: "Tháng 8" },
-];
 
 export default function History() {
   const { user } = useAuth();
+  const { t, lang } = useT();
+  const locale = localeOf(lang);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState("all");
-  const [preview, setPreview] = useState(null);
+
+  const MONTHS = [
+    { value: "all", label: t("wc.history_filter_all") },
+    { value: "6", label: t("wc.month_6") },
+    { value: "7", label: t("wc.month_7") },
+    { value: "8", label: t("wc.month_8") },
+  ];
 
   useEffect(() => {
     if (!user?.id) return;
@@ -54,10 +55,13 @@ export default function History() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[10px] tracking-[0.4em] uppercase text-arena-amber">
-            Lịch sử · {filtered.length} buổi · {total.toLocaleString("vi-VN")} kcal
+            {t("wc.history_header_meta", {
+              count: filtered.length,
+              kcal: formatNum(total, lang),
+            })}
           </p>
           <h1 className="font-display text-3xl font-semibold mt-2">
-            Lịch sử tập luyện
+            {t("wc.history_title")}
           </h1>
         </div>
       </header>
@@ -81,60 +85,73 @@ export default function History() {
       <section className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
         {loading ? (
           <p className="py-12 text-sm text-arena-muted text-center">
-            Đang tải…
+            {t("wc.loading")}
           </p>
         ) : filtered.length === 0 ? (
           <p className="py-12 text-sm text-arena-muted text-center">
-            Không có buổi tập nào trong khoảng thời gian này.
+            {t("wc.history_empty")}
           </p>
         ) : (
           <table className="w-full text-sm min-w-[680px]">
             <thead>
               <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
-                <th className="px-4 py-3 text-left font-medium">Ngày</th>
-                <th className="px-4 py-3 text-left font-medium">Loại</th>
-                <th className="px-4 py-3 text-right font-medium">Thời gian</th>
-                <th className="px-4 py-3 text-right font-medium">kcal</th>
-                <th className="px-4 py-3 text-left font-medium">Thiết bị</th>
-                <th className="px-4 py-3 text-left font-medium">Ảnh</th>
-                <th className="px-4 py-3 text-left font-medium">Trạng thái</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_date")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_type")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("wc.history_col_duration")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("wc.history_col_kcal")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_device")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_photos")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_status")}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((e) => {
                 const ex = findExercise(e.exercise_type);
                 const dev = findDevice(e.device);
+                const dateStr = new Date(e.entry_date).toLocaleDateString(
+                  locale,
+                  { day: "2-digit", month: "2-digit", year: "numeric" }
+                );
                 return (
                   <tr
                     key={e.id}
                     className="border-b border-arena-border/60 last:border-0 hover:bg-arena-card/50"
                   >
                     <td className="px-4 py-3 whitespace-nowrap text-arena-muted">
-                      {formatDate(e.entry_date)}
+                      {dateStr}
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-2">
                         <span className="text-lg">{ex.icon}</span>
-                        {ex.label}
+                        {e.exercise_type === "other" && e.exercise_other
+                          ? e.exercise_other
+                          : t(`wc.ex_${ex.id}`)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {e.duration_min} <span className="text-arena-muted">ph</span>
+                      {e.duration_min}{" "}
+                      <span className="text-arena-muted">
+                        {t("wc.minutes_short")}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-arena-amber font-semibold">
-                      {e.kcal.toLocaleString("vi-VN")}
+                      {formatNum(e.kcal, lang)}
                     </td>
                     <td className="px-4 py-3 text-arena-muted text-xs">
-                      {dev?.label || "—"}
+                      {e.device === "other" && e.device_other
+                        ? e.device_other
+                        : dev
+                        ? t(`wc.dev_${dev.id}`)
+                        : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
-                        <PhotoChip url={e.photo_before_url} label="①" onClick={() => setPreview(e.photo_before_url)} />
-                        <PhotoChip url={e.photo_after_url} label="②" onClick={() => setPreview(e.photo_after_url)} />
+                        <PhotoChip url={e.photo_before_url} />
+                        <PhotoChip url={e.photo_after_url} />
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge status={e.status} />
+                      <StatusBadge status={e.status} t={t} />
                     </td>
                   </tr>
                 );
@@ -145,65 +162,43 @@ export default function History() {
       </section>
 
       <p className="text-[11px] text-arena-muted">
-        Chương trình {PROGRAM.startDate.toLocaleDateString("vi-VN")} —{" "}
-        {PROGRAM.endDate.toLocaleDateString("vi-VN")}
+        {t("wc.history_program_range", {
+          start: PROGRAM.startDate.toLocaleDateString(locale),
+          end: PROGRAM.endDate.toLocaleDateString(locale),
+        })}
       </p>
 
-      {preview && <PhotoModal url={preview} onClose={() => setPreview(null)} />}
     </div>
   );
 }
 
-function PhotoChip({ url, label, onClick }) {
+function PhotoChip({ url }) {
   if (!url) return <span className="text-arena-muted">—</span>;
   return (
-    <button
-      onClick={onClick}
-      className="w-10 h-10 rounded border border-arena-border overflow-hidden hover:border-arena-amber transition"
-      title="Xem ảnh"
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      title={url}
+      className="inline-flex items-center justify-center w-8 h-8 rounded border border-arena-border hover:border-arena-amber hover:text-arena-amber text-arena-muted text-sm transition"
     >
-      <img src={url} alt={label} className="w-full h-full object-cover" />
-    </button>
+      🔗
+    </a>
   );
 }
 
-function PhotoModal({ url, onClose }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-arena-bg/90 backdrop-blur grid place-items-center p-4"
-      onClick={onClose}
-    >
-      <div className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={onClose}
-            className="text-arena-muted hover:text-arena-text text-sm"
-          >
-            ✕ Đóng
-          </button>
-        </div>
-        <img
-          src={url}
-          alt=""
-          className="w-full max-h-[80vh] object-contain rounded-lg border border-arena-border"
-        />
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   const map = {
     approved: {
-      label: "Đã duyệt",
+      label: t("wc.status_approved"),
       cls: "text-arena-green border-arena-green/30 bg-arena-green/10",
     },
     pending: {
-      label: "Chờ duyệt",
+      label: t("wc.status_pending"),
       cls: "text-arena-amber border-arena-amber/30 bg-arena-amber/10",
     },
     rejected: {
-      label: "Từ chối",
+      label: t("wc.status_rejected"),
       cls: "text-arena-red border-arena-red/30 bg-arena-red/10",
     },
   };

@@ -1,3 +1,5 @@
+import { useT, formatNum } from "../../../lib/i18n";
+
 export default function Ring({
   value,
   max,
@@ -8,6 +10,7 @@ export default function Ring({
   color = "#F5C451",
   trackColor = "#1C242E",
 }) {
+  const { lang } = useT();
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
@@ -35,15 +38,13 @@ export default function Ring({
           style={{ transition: "stroke-dasharray 600ms ease" }}
         />
       </svg>
-      <div className="absolute inset-0 grid place-items-center text-center">
-        <div>
-          <p className="font-display text-3xl font-semibold">
-            {Math.round(value).toLocaleString("vi-VN")}
-          </p>
-          <p className="text-[10px] tracking-[0.3em] uppercase text-arena-muted mt-0.5">
-            {label || `${unit} · mục tiêu ${max.toLocaleString("vi-VN")}`}
-          </p>
-        </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+        <p className="font-display text-3xl font-semibold leading-none">
+          {formatNum(Math.round(value), lang)}
+        </p>
+        <p className="text-[10px] tracking-[0.3em] uppercase text-arena-muted mt-1.5">
+          {label || `${unit} · ${formatNum(max, lang)}`}
+        </p>
       </div>
     </div>
   );

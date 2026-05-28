@@ -16,14 +16,20 @@ import {
   formatDate,
 } from "../games/wellness-challenge/lib/data";
 
-const TABS = [
+const EVENTS = [
+  { id: "wellness-challenge", label: "Wellness Challenge", icon: "💪", accent: "amber" },
+  { id: "wc", label: "World Cup", icon: "⚽", accent: "green" },
+];
+
+const WC_TABS = [
   { id: "entries", label: "Buổi tập" },
   { id: "users", label: "Người tham gia" },
 ];
 
 export default function Admin() {
   const { user, refreshProfile } = useAuth();
-  const [tab, setTab] = useState("entries");
+  const [section, setSection] = useState("wellness-challenge"); // event id | "admins"
+  const [wcTab, setWcTab] = useState("entries");
   const [profiles, setProfiles] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +56,17 @@ export default function Admin() {
     setTimeout(() => setToast(null), 2500);
   }
 
+  async function handleProfileChange(id, patch) {
+    try {
+      await updateProfileMeta(id, patch);
+      await reload();
+      if (id === user?.id) await refreshProfile();
+      showToast("Đã cập nhật");
+    } catch (e) {
+      showToast(e.message, "error");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-arena-bg text-arena-text">
       <header className="border-b border-arena-border bg-arena-bg/80 backdrop-blur sticky top-0 z-30">
@@ -59,9 +76,9 @@ export default function Admin() {
             className="shrink-0 flex items-center gap-2"
             title="Back to Hub"
           >
-            <span className="w-2 h-2 rounded-full bg-arena-amber shadow-[0_0_8px_#F5C451]" />
+            <span className="w-2 h-2 rounded-full bg-arena-blue shadow-[0_0_8px_#60A5FA]" />
             <span className="font-display font-semibold tracking-tight text-lg">
-              LNP Hub<span className="text-arena-amber">.</span>
+              LNP Hub<span className="text-arena-blue">.</span>
               <span className="ml-2 text-[10px] tracking-[0.3em] uppercase text-arena-muted font-normal align-middle">
                 Admin
               </span>
@@ -69,57 +86,83 @@ export default function Admin() {
           </Link>
           <span className="ml-auto text-xs text-arena-muted">{user?.email}</span>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 -mb-px">
-          {TABS.map((t) => (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap gap-1 -mb-px">
+          {EVENTS.map((ev) => (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-2 text-sm border-b-2 transition ${
-                tab === t.id
-                  ? "border-arena-amber text-arena-amber"
+              key={ev.id}
+              onClick={() => setSection(ev.id)}
+              className={`px-4 py-2 text-sm border-b-2 transition flex items-center gap-2 ${
+                section === ev.id
+                  ? "border-arena-blue text-arena-blue"
                   : "border-transparent text-arena-muted hover:text-arena-text"
               }`}
             >
-              {t.label}
+              <span>{ev.icon}</span>
+              {ev.label}
             </button>
           ))}
+          <span className="mx-2 self-center text-arena-border">|</span>
+          <button
+            onClick={() => setSection("admins")}
+            className={`px-4 py-2 text-sm border-b-2 transition ${
+              section === "admins"
+                ? "border-arena-blue text-arena-blue"
+                : "border-transparent text-arena-muted hover:text-arena-text"
+            }`}
+          >
+            Quản trị viên
+          </button>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {loading ? (
           <p className="py-12 text-sm text-arena-muted text-center">Đang tải…</p>
-        ) : tab === "entries" ? (
-          <EntriesTab
-            entries={entries}
-            profiles={profiles}
-            onEdit={setEditing}
-            onAdd={() => setEditing({})}
-            onDelete={async (id) => {
-              if (!confirm("Xoá buổi tập này?")) return;
-              try {
-                await deleteEntry(id);
-                await reload();
-                showToast("Đã xoá");
-              } catch (e) {
-                showToast(e.message, "error");
-              }
-            }}
-          />
+        ) : section === "wellness-challenge" ? (
+          <>
+            <div className="mb-4 flex gap-1 border-b border-arena-border">
+              {WC_TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setWcTab(t.id)}
+                  className={`px-3 py-2 text-xs tracking-[0.2em] uppercase border-b-2 -mb-px transition ${
+                    wcTab === t.id
+                      ? "border-arena-blue text-arena-blue"
+                      : "border-transparent text-arena-muted hover:text-arena-text"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            {wcTab === "entries" ? (
+              <EntriesTab
+                entries={entries}
+                profiles={profiles}
+                onEdit={setEditing}
+                onAdd={() => setEditing({})}
+                onDelete={async (id) => {
+                  if (!confirm("Xoá buổi tập này?")) return;
+                  try {
+                    await deleteEntry(id);
+                    await reload();
+                    showToast("Đã xoá");
+                  } catch (e) {
+                    showToast(e.message, "error");
+                  }
+                }}
+              />
+            ) : (
+              <UsersTab profiles={profiles} onChange={handleProfileChange} />
+            )}
+          </>
+        ) : section === "wc" ? (
+          <WorldCupAdmin />
         ) : (
-          <UsersTab
+          <AdminsTab
             profiles={profiles}
             currentUserId={user?.id}
-            onChange={async (id, patch) => {
-              try {
-                await updateProfileMeta(id, patch);
-                await reload();
-                if (id === user?.id) await refreshProfile();
-                showToast("Đã cập nhật");
-              } catch (e) {
-                showToast(e.message, "error");
-              }
-            }}
+            onChange={handleProfileChange}
           />
         )}
       </main>
@@ -158,6 +201,122 @@ export default function Admin() {
 }
 
 // ============================================================
+// World Cup admin (stub)
+// ============================================================
+function WorldCupAdmin() {
+  return (
+    <div className="rounded-lg border border-arena-border bg-arena-surface p-10 text-center">
+      <div className="text-4xl mb-3">⚽</div>
+      <h2 className="font-display text-2xl font-semibold mb-2">
+        World Cup Admin
+      </h2>
+      <p className="text-sm text-arena-muted">
+        Khu vực quản lý dự đoán, kết quả trận và đội hình sẽ sớm ra mắt.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================
+// Admins tab — global admin role management
+// ============================================================
+function AdminsTab({ profiles, currentUserId, onChange }) {
+  const [search, setSearch] = useState("");
+  const list = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return profiles
+      .filter(
+        (p) =>
+          !q ||
+          p.full_name?.toLowerCase().includes(q) ||
+          p.email?.toLowerCase().includes(q)
+      )
+      .sort((a, b) => {
+        if (!!b.is_admin - !!a.is_admin !== 0) return !!b.is_admin - !!a.is_admin;
+        return (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "");
+      });
+  }, [profiles, search]);
+
+  const adminCount = profiles.filter((p) => p.is_admin).length;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="font-display text-2xl font-semibold mr-auto">
+          Quản trị viên · {adminCount}
+        </h2>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Tìm theo tên / email…"
+          className="input max-w-xs"
+        />
+      </div>
+      <p className="text-sm text-arena-muted">
+        Quản trị viên có toàn quyền trên mọi event. Bất kỳ admin nào cũng có thể
+        cấp hoặc thu hồi quyền admin của người khác.
+      </p>
+
+      <div className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
+        <table className="w-full text-sm min-w-[640px]">
+          <thead>
+            <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
+              <th className="px-4 py-3 text-left">Tên</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-center">Admin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((p) => (
+              <tr
+                key={p.id}
+                className="border-b border-arena-border/60 last:border-0"
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full border border-arena-border bg-arena-card grid place-items-center text-[10px] font-semibold overflow-hidden">
+                      {p.avatar_url ? (
+                        <img
+                          src={p.avatar_url}
+                          alt=""
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        (p.full_name || "?")
+                          .split(" ")
+                          .map((s) => s[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()
+                      )}
+                    </span>
+                    <span>{p.full_name || "—"}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-arena-muted text-xs">{p.email}</td>
+                <td className="px-4 py-3 text-center">
+                  <Toggle
+                    checked={!!p.is_admin}
+                    onChange={(v) => onChange(p.id, { is_admin: v })}
+                    disabled={p.id === currentUserId}
+                    title={
+                      p.id === currentUserId
+                        ? "Không thể tự huỷ quyền admin của mình"
+                        : ""
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // Entries tab
 // ============================================================
 function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
@@ -177,7 +336,8 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
         const p = profileById[e.user_id];
         return (
           p?.full_name?.toLowerCase().includes(q) ||
-          p?.email?.toLowerCase().includes(q)
+          p?.email?.toLowerCase().includes(q) ||
+          e.user_email?.toLowerCase().includes(q)
         );
       });
     }
@@ -212,7 +372,7 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
         </select>
         <button
           onClick={onAdd}
-          className="rounded-md bg-arena-amber text-arena-bg px-4 py-2 text-xs font-semibold tracking-wide uppercase hover:brightness-110"
+          className="rounded-md bg-arena-blue text-arena-bg px-4 py-2 text-xs font-semibold tracking-wide uppercase hover:brightness-110"
         >
           + Thêm buổi tập
         </button>
@@ -243,14 +403,30 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
                 const p = profileById[e.user_id];
                 const ex = findExercise(e.exercise_type);
                 const dev = findDevice(e.device);
+                const isGuest = !e.user_id && !!e.user_email;
                 return (
                   <tr
                     key={e.id}
                     className="border-b border-arena-border/60 last:border-0 hover:bg-arena-card/40"
                   >
                     <td className="px-4 py-3">
-                      <p className="font-medium">{p?.full_name || "—"}</p>
-                      <p className="text-[11px] text-arena-muted">{p?.email}</p>
+                      {isGuest ? (
+                        <>
+                          <p className="font-medium text-arena-muted italic">
+                            {e.user_email}
+                          </p>
+                          <p className="text-[10px] tracking-[0.2em] uppercase text-arena-muted">
+                            chưa login
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-medium">{p?.full_name || "—"}</p>
+                          <p className="text-[11px] text-arena-muted">
+                            {p?.email}
+                          </p>
+                        </>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-arena-muted whitespace-nowrap">
                       {formatDate(e.entry_date)}
@@ -258,17 +434,21 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-2">
                         <span className="text-lg">{ex.icon}</span>
-                        {ex.label}
+                        {e.exercise_type === "other" && e.exercise_other
+                          ? e.exercise_other
+                          : ex.label}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
                       {e.duration_min}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-arena-amber font-semibold">
+                    <td className="px-4 py-3 text-right font-mono text-arena-blue font-semibold">
                       {e.kcal.toLocaleString("vi-VN")}
                     </td>
                     <td className="px-4 py-3 text-xs text-arena-muted">
-                      {dev?.label || "—"}
+                      {e.device === "other" && e.device_other
+                        ? e.device_other
+                        : dev?.label || "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
@@ -282,7 +462,7 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => onEdit(e)}
-                        className="text-xs text-arena-amber hover:underline mr-3"
+                        className="text-xs text-arena-blue hover:underline mr-3"
                       >
                         Sửa
                       </button>
@@ -307,7 +487,7 @@ function EntriesTab({ entries, profiles, onEdit, onAdd, onDelete }) {
 // ============================================================
 // Users tab
 // ============================================================
-function UsersTab({ profiles, currentUserId, onChange }) {
+function UsersTab({ profiles, onChange }) {
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl font-semibold">
@@ -315,18 +495,17 @@ function UsersTab({ profiles, currentUserId, onChange }) {
       </h2>
       <p className="text-sm text-arena-muted">
         Đặt giới tính để KPI hoạt động. Toggle "Tham gia" để loại khỏi bảng xếp
-        hạng. Cấp quyền admin một cách thận trọng.
+        hạng.
       </p>
 
       <div className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
-        <table className="w-full text-sm min-w-[720px]">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
               <th className="px-4 py-3 text-left">Tên</th>
               <th className="px-4 py-3 text-left">Email</th>
               <th className="px-4 py-3 text-left">Giới</th>
               <th className="px-4 py-3 text-center">Tham gia</th>
-              <th className="px-4 py-3 text-center">Admin</th>
             </tr>
           </thead>
           <tbody>
@@ -377,18 +556,6 @@ function UsersTab({ profiles, currentUserId, onChange }) {
                     onChange={(v) => onChange(p.id, { joined_wellness: v })}
                   />
                 </td>
-                <td className="px-4 py-3 text-center">
-                  <Toggle
-                    checked={!!p.is_admin}
-                    onChange={(v) => onChange(p.id, { is_admin: v })}
-                    disabled={p.id === currentUserId}
-                    title={
-                      p.id === currentUserId
-                        ? "Không thể tự huỷ quyền admin của mình"
-                        : ""
-                    }
-                  />
-                </td>
               </tr>
             ))}
           </tbody>
@@ -403,11 +570,20 @@ function UsersTab({ profiles, currentUserId, onChange }) {
 // ============================================================
 function EntryModal({ entry, profiles, onClose, onSave }) {
   const isEdit = !!entry.id;
+  const initialMode = entry.user_email && !entry.user_id ? "email" : "user";
+  const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState({
     id: entry.id || undefined,
-    user_id: entry.user_id || profiles.find((p) => p.joined_wellness)?.id || "",
+    user_id:
+      entry.user_id ||
+      (initialMode === "user"
+        ? profiles.find((p) => p.joined_wellness)?.id || ""
+        : ""),
+    user_email: entry.user_email || "",
     entry_date: entry.entry_date || new Date().toISOString().slice(0, 10),
     exercise_type: entry.exercise_type || "run",
+    exercise_other: entry.exercise_other || "",
+    device_other: entry.device_other || "",
     duration_min: entry.duration_min || "",
     kcal: entry.kcal || "",
     device: entry.device || "apple_watch",
@@ -424,10 +600,34 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
     setErrors((e) => ({ ...e, [k]: undefined }));
   }
 
+  function switchMode(m) {
+    if (isEdit) return;
+    setMode(m);
+    if (m === "user") {
+      set("user_email", "");
+      if (!form.user_id) {
+        set("user_id", profiles.find((p) => p.joined_wellness)?.id || "");
+      }
+    } else {
+      set("user_id", "");
+    }
+  }
+
   function validate() {
     const e = {};
-    if (!form.user_id) e.user_id = "Chọn người tham gia";
+    if (mode === "user") {
+      if (!form.user_id) e.user_id = "Chọn người tham gia";
+    } else {
+      const em = form.user_email.trim();
+      if (!em) e.user_email = "Nhập email";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))
+        e.user_email = "Email không hợp lệ";
+    }
     if (!form.entry_date) e.entry_date = "Chọn ngày";
+    if (form.exercise_type === "other" && !form.exercise_other.trim())
+      e.exercise_other = "Nhập tên môn cụ thể";
+    if (form.device === "other" && !form.device_other.trim())
+      e.device_other = "Nhập tên thiết bị";
     const dur = Number(form.duration_min);
     if (!dur || dur <= 0 || dur > 120) e.duration_min = "1-120 phút";
     const k = Number(form.kcal);
@@ -467,37 +667,79 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
           </button>
         </header>
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Người tham gia" error={errors.user_id}>
-              <select
-                value={form.user_id}
-                onChange={(e) => set("user_id", e.target.value)}
-                className="input"
-                disabled={isEdit}
-              >
-                {profiles
-                  .filter((p) => p.joined_wellness || p.id === form.user_id)
-                  .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {(p.full_name || p.email) +
-                        (p.gender
-                          ? p.gender === "male"
-                            ? " (Nam)"
-                            : " (Nữ)"
-                          : " (chưa set giới)")}
-                    </option>
-                  ))}
-              </select>
+          <Field
+              label={
+                <span className="flex items-center gap-2">
+                  <span>Người tham gia</span>
+                  {!isEdit && (
+                    <span className="inline-flex rounded border border-arena-border overflow-hidden text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => switchMode("user")}
+                        className={`px-2 py-0.5 ${
+                          mode === "user"
+                            ? "bg-arena-blue text-arena-bg"
+                            : "text-arena-muted hover:text-arena-text"
+                        }`}
+                      >
+                        Từ danh sách
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => switchMode("email")}
+                        className={`px-2 py-0.5 ${
+                          mode === "email"
+                            ? "bg-arena-blue text-arena-bg"
+                            : "text-arena-muted hover:text-arena-text"
+                        }`}
+                      >
+                        Email
+                      </button>
+                    </span>
+                  )}
+                </span>
+              }
+              error={mode === "user" ? errors.user_id : errors.user_email}
+            >
+              {mode === "user" ? (
+                <select
+                  value={form.user_id}
+                  onChange={(e) => set("user_id", e.target.value)}
+                  className="input"
+                  disabled={isEdit}
+                >
+                  {profiles
+                    .filter((p) => p.joined_wellness || p.id === form.user_id)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {(p.full_name || p.email) +
+                          (p.gender
+                            ? p.gender === "male"
+                              ? " (Nam)"
+                              : " (Nữ)"
+                            : " (chưa set giới)")}
+                      </option>
+                    ))}
+                </select>
+              ) : (
+                <input
+                  type="email"
+                  value={form.user_email}
+                  onChange={(e) => set("user_email", e.target.value)}
+                  placeholder="nguoi@lnp-technologies.com"
+                  className="input"
+                  disabled={isEdit}
+                />
+              )}
             </Field>
-            <Field label="Ngày tập" error={errors.entry_date}>
-              <input
-                type="date"
-                value={form.entry_date}
-                onChange={(e) => set("entry_date", e.target.value)}
-                className="input"
-              />
-            </Field>
-          </div>
+          <Field label="Ngày tập" error={errors.entry_date}>
+            <input
+              type="date"
+              value={form.entry_date}
+              onChange={(e) => set("entry_date", e.target.value)}
+              className="input"
+            />
+          </Field>
 
           <Field label="Loại hình">
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -508,7 +750,7 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
                   onClick={() => set("exercise_type", ex.id)}
                   className={`rounded border px-2 py-2 text-xs flex flex-col items-center gap-1 transition ${
                     form.exercise_type === ex.id
-                      ? "border-arena-amber bg-arena-amber/10 text-arena-amber"
+                      ? "border-arena-blue bg-arena-blue/10 text-arena-blue"
                       : "border-arena-border bg-arena-card text-arena-muted hover:text-arena-text"
                   }`}
                 >
@@ -518,6 +760,17 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
               ))}
             </div>
           </Field>
+
+          {form.exercise_type === "other" && (
+            <Field label="Tên môn cụ thể" error={errors.exercise_other}>
+              <input
+                value={form.exercise_other}
+                onChange={(e) => set("exercise_other", e.target.value)}
+                placeholder="VD: Yoga, Pickleball, Leo núi…"
+                className="input"
+              />
+            </Field>
+          )}
 
           <div className="grid sm:grid-cols-3 gap-4">
             <Field label="Phút (≤120)" error={errors.duration_min}>
@@ -553,6 +806,17 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
               </select>
             </Field>
           </div>
+
+          {form.device === "other" && (
+            <Field label="Tên thiết bị cụ thể" error={errors.device_other}>
+              <input
+                value={form.device_other}
+                onChange={(e) => set("device_other", e.target.value)}
+                placeholder="VD: Huawei Watch, Xiaomi Band…"
+                className="input"
+              />
+            </Field>
+          )}
 
           <Field label="URL ảnh TRƯỚC khi tập" error={errors.photo_before_url}>
             <input
@@ -613,7 +877,7 @@ function EntryModal({ entry, profiles, onClose, onSave }) {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-md bg-arena-amber text-arena-bg px-5 py-2.5 text-sm font-semibold tracking-wide uppercase hover:brightness-110 disabled:opacity-50"
+              className="rounded-md bg-arena-blue text-arena-bg px-5 py-2.5 text-sm font-semibold tracking-wide uppercase hover:brightness-110 disabled:opacity-50"
             >
               {saving ? "Đang lưu…" : isEdit ? "Lưu thay đổi" : "Thêm"}
             </button>
@@ -643,16 +907,15 @@ function Field({ label, children, error }) {
 
 function PreviewImg({ url }) {
   return (
-    <div className="mt-2 w-28 h-20 rounded border border-arena-border overflow-hidden bg-arena-card">
-      <img
-        src={url}
-        alt=""
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          e.currentTarget.style.display = "none";
-        }}
-      />
-    </div>
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-2 inline-flex items-center gap-1.5 text-xs text-arena-blue hover:underline break-all"
+    >
+      <span>🔗</span>
+      <span className="truncate max-w-[24rem]">{url}</span>
+    </a>
   );
 }
 
@@ -663,9 +926,10 @@ function PhotoChip({ url }) {
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="w-10 h-10 rounded border border-arena-border overflow-hidden hover:border-arena-amber block"
+      title={url}
+      className="inline-flex items-center justify-center w-8 h-8 rounded border border-arena-border hover:border-arena-blue hover:text-arena-blue text-arena-muted text-sm"
     >
-      <img src={url} alt="" className="w-full h-full object-cover" />
+      🔗
     </a>
   );
 }
@@ -694,7 +958,7 @@ function Toggle({ checked, onChange, disabled, title }) {
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`relative w-10 h-5 rounded-full transition ${
-        checked ? "bg-arena-amber" : "bg-arena-border"
+        checked ? "bg-arena-blue" : "bg-arena-border"
       } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <span

@@ -33,6 +33,7 @@ export const DEVICES = [
   { id: "gym_machine", label: "Máy tập tại gym" },
   { id: "apple_health", label: "Apple Health" },
   { id: "google_fit", label: "Google Fit" },
+  { id: "other", label: "Khác" },
 ];
 
 export const PRIZES = [

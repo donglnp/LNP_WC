@@ -25,6 +25,66 @@ const dict = {
   "common.saving": { en: "Saving…", vi: "Đang lưu…", ja: "保存中…" },
   "common.you": { en: "You", vi: "Bạn", ja: "あなた" },
 
+  // ---------- Catalog (home) ----------
+  "catalog.welcome": { en: "Welcome", vi: "Chào mừng", ja: "ようこそ" },
+  "catalog.tagline": {
+    en: "Pick a game to jump into. Your sign-in works across every game in the Arena.",
+    vi: "Chọn một hoạt động để bắt đầu. Tài khoản của bạn dùng chung cho mọi hoạt động.",
+    ja: "ゲームを選んで参加しよう。サインインは Arena 内のすべてのゲームで共通です。",
+  },
+  "catalog.tag_play": { en: "Play", vi: "Tham gia", ja: "プレイ" },
+  "catalog.tag_coming_soon": {
+    en: "Coming Soon",
+    vi: "Sắp có",
+    ja: "近日公開",
+  },
+  "catalog.tag_upcoming": {
+    en: "Upcoming",
+    vi: "Sắp diễn ra",
+    ja: "開催予定",
+  },
+  "catalog.tag_upcoming_date": {
+    en: "Upcoming · {date}",
+    vi: "Sắp diễn ra · {date}",
+    ja: "開催予定 · {date}",
+  },
+  "catalog.tag_suggest": { en: "Suggest", vi: "Góp ý", ja: "提案" },
+  "catalog.wc_name": {
+    en: "World Cup 2026",
+    vi: "World Cup 2026",
+    ja: "ワールドカップ 2026",
+  },
+  "catalog.wc_desc": {
+    en: "Predict every FIFA World Cup 2026 match and climb the company leaderboard.",
+    vi: "Dự đoán mọi trận FIFA World Cup 2026 và leo top bảng xếp hạng công ty.",
+    ja: "FIFA ワールドカップ 2026 の全試合を予想し、社内ランキングで上位を目指そう。",
+  },
+  "catalog.wellness_name": {
+    en: "Wellness Challenge",
+    vi: "Wellness Challenge",
+    ja: "Wellness Challenge",
+  },
+  "catalog.wellness_desc": {
+    en: "3-month wellness program — log kcal, hit weekly KPI, win prizes.",
+    vi: "Chương trình rèn luyện sức khoẻ 3 tháng — ghi calo, đạt KPI tuần, săn giải thưởng.",
+    ja: "3か月のウェルネスプログラム — kcalを記録し、週間KPIを達成して賞品を獲得。",
+  },
+  "catalog.suggest_name": {
+    en: "Suggest an activity",
+    vi: "Đề xuất hoạt động",
+    ja: "アクティビティを提案",
+  },
+  "catalog.suggest_desc": {
+    en: "Got an idea for a new activity? Share it with us right away.",
+    vi: "Bạn có ý tưởng cho hoạt động mới? Hãy chia sẻ với chúng tôi ngay.",
+    ja: "新しいアクティビティのアイデアはありますか？ぜひ共有してください。",
+  },
+  "catalog.suggest_subject": {
+    en: "New activity suggestion",
+    vi: "Đề xuất hoạt động mới",
+    ja: "新しいアクティビティの提案",
+  },
+
   // ---------- Nav ----------
   "nav.dashboard": { en: "Dashboard", vi: "Tổng quan", ja: "ダッシュボード" },
   "nav.matches": { en: "Matches", vi: "Trận đấu", ja: "試合" },
@@ -407,7 +467,571 @@ const dict = {
     vi: "Đang cập nhật — sẽ công bố trong thời gian tới.",
     ja: "近日公開 — 詳細は後日発表します。",
   },
+
+  // ---------- Wellness Challenge: Layout / nav ----------
+  "wc.brand_tag": { en: "Wellness", vi: "Wellness", ja: "Wellness" },
+  "wc.tab_overview": { en: "Overview", vi: "Tổng quan", ja: "概要" },
+  "wc.tab_history": { en: "History", vi: "Lịch sử", ja: "履歴" },
+  "wc.tab_leaderboard": {
+    en: "Leaderboard",
+    vi: "Bảng xếp hạng",
+    ja: "ランキング",
+  },
+  "wc.tab_rules": { en: "Rules", vi: "Luật chơi", ja: "ルール" },
+
+  // ---------- Wellness: months / common ----------
+  "wc.month_6": { en: "June", vi: "Tháng 6", ja: "6月" },
+  "wc.month_7": { en: "July", vi: "Tháng 7", ja: "7月" },
+  "wc.month_8": { en: "August", vi: "Tháng 8", ja: "8月" },
+  "wc.gender_male": { en: "Male", vi: "Nam", ja: "男性" },
+  "wc.gender_female": { en: "Female", vi: "Nữ", ja: "女性" },
+  "wc.minutes_short": { en: "min", vi: "ph", ja: "分" },
+  "wc.loading": { en: "Loading…", vi: "Đang tải…", ja: "読み込み中…" },
+
+  // ---------- Wellness: exercises ----------
+  "wc.ex_run": { en: "Running", vi: "Chạy bộ", ja: "ランニング" },
+  "wc.ex_walk": { en: "Walking", vi: "Đi bộ", ja: "ウォーキング" },
+  "wc.ex_cycle": { en: "Cycling", vi: "Đạp xe", ja: "サイクリング" },
+  "wc.ex_swim": { en: "Swimming", vi: "Bơi lội", ja: "水泳" },
+  "wc.ex_gym": { en: "Gym", vi: "Tập gym", ja: "ジム" },
+  "wc.ex_other": { en: "Other", vi: "Khác", ja: "その他" },
+
+  // ---------- Wellness: devices ----------
+  "wc.dev_apple_watch": {
+    en: "Apple Watch",
+    vi: "Apple Watch",
+    ja: "Apple Watch",
+  },
+  "wc.dev_garmin": { en: "Garmin", vi: "Garmin", ja: "Garmin" },
+  "wc.dev_fitbit": { en: "Fitbit", vi: "Fitbit", ja: "Fitbit" },
+  "wc.dev_strava": { en: "Strava", vi: "Strava", ja: "Strava" },
+  "wc.dev_gym_machine": {
+    en: "Gym machine",
+    vi: "Máy tập tại gym",
+    ja: "ジムマシン",
+  },
+  "wc.dev_apple_health": {
+    en: "Apple Health",
+    vi: "Apple Health",
+    ja: "Apple Health",
+  },
+  "wc.dev_google_fit": {
+    en: "Google Fit",
+    vi: "Google Fit",
+    ja: "Google Fit",
+  },
+
+  // ---------- Wellness: prizes ----------
+  "wc.prize_monthly_kpi": {
+    en: "Hit the monthly KPI",
+    vi: "Đạt KPI hàng tháng",
+    ja: "月間KPI達成",
+  },
+  "wc.prize_top_burner": {
+    en: "Top kcal of the month (1 male + 1 female)",
+    vi: "Calo cao nhất tháng (1 nam + 1 nữ)",
+    ja: "月間最多カロリー(男女各1名)",
+  },
+  "wc.prize_streak": {
+    en: "Hit KPI 3 months in a row",
+    vi: "Đạt KPI 3 tháng liên tiếp",
+    ja: "3か月連続でKPI達成",
+  },
+  "wc.prize_amount_monthly": {
+    en: "500,000 VND / person / month",
+    vi: "500.000 VND / người / tháng",
+    ja: "500,000 VND / 人 / 月",
+  },
+  "wc.prize_amount_streak": {
+    en: "500,000 VND / person",
+    vi: "500.000 VND / người",
+    ja: "500,000 VND / 人",
+  },
+
+  // ---------- Wellness: empty / setup states ----------
+  "wc.empty_not_joined_title": {
+    en: "You haven't joined the Wellness Challenge",
+    vi: "Bạn chưa tham gia Wellness Challenge",
+    ja: "Wellness Challenge に未参加です",
+  },
+  "wc.empty_not_joined_sub": {
+    en: "Contact an admin to be added to the program.",
+    vi: "Liên hệ admin để được thêm vào chương trình.",
+    ja: "管理者に連絡してプログラムに追加してもらってください。",
+  },
+  "wc.empty_need_kpi_title": {
+    en: "KPI setup required",
+    vi: "Cần thiết lập KPI",
+    ja: "KPI の設定が必要です",
+  },
+  "wc.empty_need_kpi_sub": {
+    en: "Admin hasn't set your gender yet. Weekly KPI depends on gender — ask admin to activate it.",
+    vi: "Admin chưa cập nhật giới tính cho bạn. KPI hàng tuần phụ thuộc vào giới — liên hệ admin để được kích hoạt.",
+    ja: "管理者があなたの性別を未設定です。週間KPIは性別により決まります — 管理者に有効化を依頼してください。",
+  },
+  "wc.empty_upcoming_title": {
+    en: "Program starts in {days} days",
+    vi: "Chương trình bắt đầu sau {days} ngày",
+    ja: "プログラム開始まで{days}日",
+  },
+  "wc.empty_upcoming_sub": {
+    en: "Kick-off date: {date}. Read the rules and get your tracking devices ready.",
+    vi: "Ngày khởi động: {date}. Hãy đọc luật chơi và chuẩn bị thiết bị đo nhé.",
+    ja: "開始日: {date}。ルールを読んで計測機器を準備しましょう。",
+  },
+  "wc.empty_upcoming_cta": {
+    en: "Read the rules",
+    vi: "Đọc luật chơi",
+    ja: "ルールを読む",
+  },
+  "wc.empty_ended_title": {
+    en: "Program has ended",
+    vi: "Chương trình đã kết thúc",
+    ja: "プログラムは終了しました",
+  },
+  "wc.empty_ended_sub": {
+    en: "Thanks for taking part! Check the leaderboard for final results.",
+    vi: "Cảm ơn bạn đã tham gia! Xem bảng xếp hạng để biết kết quả cuối.",
+    ja: "ご参加ありがとうございました！最終結果はランキングをご覧ください。",
+  },
+
+  // ---------- Wellness: Dashboard ----------
+  "wc.ring_label_week": {
+    en: "kcal this week",
+    vi: "kcal tuần này",
+    ja: "今週の kcal",
+  },
+  "wc.ring_label_month": {
+    en: "kcal this month",
+    vi: "kcal tháng này",
+    ja: "今月の kcal",
+  },
+  "wc.hero_tagline": {
+    en: "{month} · current week",
+    vi: "{month} · Tuần hiện tại",
+    ja: "{month} · 今週",
+  },
+  "wc.hero_kpi_hit": {
+    en: "Weekly KPI hit.",
+    vi: "Đã đạt KPI tuần.",
+    ja: "週間KPI達成。",
+  },
+  "wc.hero_keep_going": {
+    en: "Keep it up! 🔥",
+    vi: "Tiếp lửa nào! 🔥",
+    ja: "この調子で！🔥",
+  },
+  "wc.hero_need_part1": { en: "Need", vi: "Cần thêm", ja: "あと" },
+  "wc.hero_need_part2": {
+    en: "to hit this week's KPI.",
+    vi: "để đạt KPI tuần.",
+    ja: "で週間KPI達成。",
+  },
+  "wc.hero_target_line": {
+    en: "Weekly target: {kpi} kcal · {days} days left this week",
+    vi: "Mục tiêu tuần: {kpi} kcal · Còn {days} ngày trong tuần",
+    ja: "週間目標: {kpi} kcal · 今週残り {days} 日",
+  },
+  "wc.btn_history": { en: "History", vi: "Xem lịch sử", ja: "履歴を見る" },
+  "wc.btn_rules": { en: "Rules", vi: "Luật chơi", ja: "ルール" },
+  "wc.stat_this_month": {
+    en: "This month",
+    vi: "Tháng hiện tại",
+    ja: "今月",
+  },
+  "wc.stat_month_sub": {
+    en: "{pct}% of target {kpi}",
+    vi: "{pct}% mục tiêu {kpi}",
+    ja: "目標 {kpi} の {pct}%",
+  },
+  "wc.stat_weeks_hit": {
+    en: "Weeks KPI met",
+    vi: "Số tuần đạt KPI",
+    ja: "KPI達成週",
+  },
+  "wc.stat_weeks_unit": { en: "weeks", vi: "tuần", ja: "週" },
+  "wc.stat_weeks_sub": {
+    en: "of 12 program weeks",
+    vi: "trong 12 tuần chương trình",
+    ja: "プログラム12週中",
+  },
+  "wc.stat_progress": {
+    en: "Program progress",
+    vi: "Tiến độ chương trình",
+    ja: "プログラム進捗",
+  },
+  "wc.stat_progress_sub": {
+    en: "June → August 2026",
+    vi: "Tháng 6 → Tháng 8 năm 2026",
+    ja: "2026年6月 → 8月",
+  },
+  "wc.stat_progress_upcoming": {
+    en: "Starts in {days} days",
+    vi: "Còn {days} ngày khởi động",
+    ja: "あと{days}日で開始",
+  },
+  "wc.stat_gender_kpi": {
+    en: "Gender · group KPI",
+    vi: "Giới tính · KPI nhóm",
+    ja: "性別 · グループKPI",
+  },
+  "wc.stat_per_week": {
+    en: "{kpi} kcal/week",
+    vi: "{kpi} kcal/tuần",
+    ja: "{kpi} kcal/週",
+  },
+  "wc.track_title": {
+    en: "3-month track",
+    vi: "Lộ trình 3 tháng",
+    ja: "3か月のロードマップ",
+  },
+  "wc.track_subtitle": {
+    en: "KPI ramps up",
+    vi: "KPI tăng dần",
+    ja: "KPI 段階的に上昇",
+  },
+  "wc.track_current": {
+    en: "In progress",
+    vi: "Đang diễn ra",
+    ja: "進行中",
+  },
+  "wc.track_past": { en: "Done", vi: "Đã qua", ja: "完了" },
+  "wc.track_upcoming": { en: "Upcoming", vi: "Sắp tới", ja: "予定" },
+  "wc.track_per_week": { en: "/ week", vi: "/ tuần", ja: "/ 週" },
+  "wc.track_month_total": {
+    en: "Month: {kpi} kcal",
+    vi: "Tháng: {kpi} kcal",
+    ja: "月間: {kpi} kcal",
+  },
+  "wc.recent_title": {
+    en: "Recent sessions",
+    vi: "Buổi tập gần đây",
+    ja: "最近のセッション",
+  },
+  "wc.recent_view_all": {
+    en: "View all →",
+    vi: "Xem tất cả →",
+    ja: "すべて表示 →",
+  },
+  "wc.recent_empty": {
+    en: "No sessions yet — admin will record them after you submit photos via Slack.",
+    vi: "Chưa có buổi tập nào — admin sẽ ghi nhận sau khi bạn gửi ảnh qua Slack.",
+    ja: "セッションはまだありません — Slack で写真を送ると管理者が記録します。",
+  },
+  "wc.prizes_title": {
+    en: "🏆 Prize structure",
+    vi: "🏆 Cơ cấu giải thưởng",
+    ja: "🏆 賞品",
+  },
+
+  // ---------- Wellness: History ----------
+  "wc.history_filter_all": { en: "All", vi: "Tất cả", ja: "すべて" },
+  "wc.history_header_meta": {
+    en: "History · {count} sessions · {kcal} kcal",
+    vi: "Lịch sử · {count} buổi · {kcal} kcal",
+    ja: "履歴 · {count} 回 · {kcal} kcal",
+  },
+  "wc.history_title": {
+    en: "Training history",
+    vi: "Lịch sử tập luyện",
+    ja: "トレーニング履歴",
+  },
+  "wc.history_empty": {
+    en: "No sessions in this period.",
+    vi: "Không có buổi tập nào trong khoảng thời gian này.",
+    ja: "この期間のセッションはありません。",
+  },
+  "wc.history_col_date": { en: "Date", vi: "Ngày", ja: "日付" },
+  "wc.history_col_type": { en: "Type", vi: "Loại", ja: "種別" },
+  "wc.history_col_duration": {
+    en: "Duration",
+    vi: "Thời gian",
+    ja: "時間",
+  },
+  "wc.history_col_kcal": { en: "kcal", vi: "kcal", ja: "kcal" },
+  "wc.history_col_device": { en: "Device", vi: "Thiết bị", ja: "デバイス" },
+  "wc.history_col_photos": { en: "Photos", vi: "Ảnh", ja: "写真" },
+  "wc.history_col_status": {
+    en: "Status",
+    vi: "Trạng thái",
+    ja: "ステータス",
+  },
+  "wc.history_program_range": {
+    en: "Program {start} — {end}",
+    vi: "Chương trình {start} — {end}",
+    ja: "プログラム {start} — {end}",
+  },
+  "wc.history_photo_view": {
+    en: "View photo",
+    vi: "Xem ảnh",
+    ja: "写真を見る",
+  },
+  "wc.history_photo_close": { en: "✕ Close", vi: "✕ Đóng", ja: "✕ 閉じる" },
+  "wc.status_approved": { en: "Approved", vi: "Đã duyệt", ja: "承認済み" },
+  "wc.status_pending": {
+    en: "Pending",
+    vi: "Chờ duyệt",
+    ja: "保留中",
+  },
+  "wc.status_rejected": { en: "Rejected", vi: "Từ chối", ja: "却下" },
+
+  // ---------- Wellness: Leaderboard ----------
+  "wc.lb_gender_all": { en: "All", vi: "Tất cả", ja: "すべて" },
+  "wc.lb_scope_month": { en: "This month", vi: "Tháng này", ja: "今月" },
+  "wc.lb_scope_total": {
+    en: "3-month total",
+    vi: "Tổng 3 tháng",
+    ja: "3か月合計",
+  },
+  "wc.lb_header_meta": {
+    en: "Leaderboard · {month} 2026",
+    vi: "Bảng xếp hạng · {month} 2026",
+    ja: "ランキング · {month} 2026",
+  },
+  "wc.lb_title": {
+    en: "Top kcal burned",
+    vi: "Top calo tiêu hao",
+    ja: "消費カロリーランキング",
+  },
+  "wc.lb_subtitle": {
+    en: "The top burner of each gender wins 500,000 VND at month end.",
+    vi: "Người dẫn đầu mỗi giới sẽ được tặng 500.000 VND vào cuối tháng.",
+    ja: "性別ごとのトップが月末に 500,000 VND を獲得します。",
+  },
+  "wc.lb_empty": {
+    en: "No participants yet. Admin needs to add members to the program.",
+    vi: "Chưa có người tham gia nào. Admin cần thêm thành viên vào chương trình.",
+    ja: "まだ参加者がいません。管理者がメンバーを追加する必要があります。",
+  },
+  "wc.lb_col_name": { en: "Name", vi: "Tên", ja: "名前" },
+  "wc.lb_col_gender": { en: "Gender", vi: "Giới", ja: "性別" },
+  "wc.lb_col_kcal_month": {
+    en: "kcal (month)",
+    vi: "kcal tháng",
+    ja: "kcal (月)",
+  },
+  "wc.lb_col_kcal_total": {
+    en: "kcal (3 mo)",
+    vi: "kcal 3 tháng",
+    ja: "kcal (3か月)",
+  },
+  "wc.lb_col_weeks_hit": {
+    en: "Weeks KPI met",
+    vi: "Tuần đạt KPI",
+    ja: "KPI達成週",
+  },
+  "wc.lb_col_status": { en: "Status", vi: "Trạng thái", ja: "ステータス" },
+  "wc.lb_you_marker": { en: "· you", vi: "· bạn", ja: "· あなた" },
+  "wc.lb_status_hit": {
+    en: "KPI met",
+    vi: "Đạt KPI",
+    ja: "KPI達成",
+  },
+  "wc.lb_status_trying": {
+    en: "Working on it",
+    vi: "Đang cố",
+    ja: "挑戦中",
+  },
+
+  // ---------- Wellness: Rules ----------
+  "wc.rules_eyebrow": {
+    en: "🌿 Rules",
+    vi: "🌿 Luật chơi",
+    ja: "🌿 ルール",
+  },
+  "wc.rules_title": {
+    en: "3-month wellness program",
+    vi: "Chương trình rèn luyện sức khỏe 3 tháng",
+    ja: "3か月ウェルネスプログラム",
+  },
+  "wc.rules_intro_a": { en: "LNP runs the", vi: "LNP triển khai chương trình", ja: "LNP は" },
+  "wc.rules_intro_name": {
+    en: "\"Train Together for Health\"",
+    vi: "\"Cùng Rèn Luyện Sức Khỏe\"",
+    ja: "「みんなで健康に」",
+  },
+  "wc.rules_intro_b": {
+    en: "program to help everyone build healthy movement habits.",
+    vi: "nhằm hỗ trợ mọi người duy trì thói quen vận động lành mạnh.",
+    ja: "プログラムを通じて、健康的な運動習慣を支援します。",
+  },
+  "wc.rules_sec_time": {
+    en: "Time frame",
+    vi: "Thời gian tổ chức",
+    ja: "開催期間",
+  },
+  "wc.rules_time_body": {
+    en: "June – August 2026 (3 months)",
+    vi: "Tháng 6 – Tháng 8 năm 2026 (3 tháng)",
+    ja: "2026年6月 – 8月 (3か月間)",
+  },
+  "wc.rules_sec_form": {
+    en: "Activity types",
+    vi: "Hình thức vận động",
+    ja: "運動の種類",
+  },
+  "wc.rules_form_body": {
+    en: "Pick whatever suits you: running, walking, cycling, swimming, gym, etc.",
+    vi: "Mỗi người tự do lựa chọn loại hình tập luyện phù hợp: chạy bộ, đi bộ, đạp xe, bơi lội, tập gym, v.v.",
+    ja: "ランニング、ウォーキング、サイクリング、水泳、ジムなどお好みのものを選んでください。",
+  },
+  "wc.rules_form_note": {
+    en: "→ Scoring is based on kcal burned per week.",
+    vi: "→ Tiêu chí đánh giá dựa trên lượng calo tiêu hao (kcal) mỗi tuần.",
+    ja: "→ 評価は週ごとの消費カロリー(kcal)に基づきます。",
+  },
+  "wc.rules_sec_kpi": {
+    en: "Weekly KPI targets",
+    vi: "Mục tiêu KPI hàng tuần",
+    ja: "週間KPI目標",
+  },
+  "wc.rules_kpi_col_gender": { en: "Gender", vi: "Giới", ja: "性別" },
+  "wc.rules_kpi_note": {
+    en: "※ Monthly target = weekly KPI × 4",
+    vi: "※ Mục tiêu tháng = KPI tuần × 4",
+    ja: "※ 月間目標 = 週間KPI × 4",
+  },
+  "wc.rules_sec_capture": {
+    en: "Result tracking rules",
+    vi: "Quy định ghi nhận kết quả",
+    ja: "結果記録のルール",
+  },
+  "wc.rules_capture_1": {
+    en: "Counted once per day, up to 120 minutes per session",
+    vi: "Chỉ tính 1 lần/ngày, mỗi lần tập tối đa 120 phút",
+    ja: "1日1回まで、1回あたり最大120分",
+  },
+  "wc.rules_capture_2": {
+    en: "Two photos required: before and after the session",
+    vi: "Bắt buộc có 2 ảnh: trước và sau khi tập",
+    ja: "セッション前後の写真2枚が必須",
+  },
+  "wc.rules_capture_3": {
+    en: "Photos must show date, month and time (use a camera app with timestamp)",
+    vi: "Ảnh phải hiển thị rõ ngày, tháng, giờ chụp (dùng app camera có timestamp)",
+    ja: "写真には日付・月・時刻が必要(タイムスタンプ付きカメラアプリを使用)",
+  },
+  "wc.rules_capture_4": {
+    en: "Photos must clearly show kcal burned",
+    vi: "Ảnh phải hiển thị rõ lượng calo tiêu hao (kcal)",
+    ja: "消費カロリー(kcal)がはっきり写っていること",
+  },
+  "wc.rules_sec_how_photo": {
+    en: "How to capture (Apple Watch example)",
+    vi: "Cách chụp ảnh (ví dụ: Apple Watch)",
+    ja: "撮影方法(Apple Watch の例)",
+  },
+  "wc.rules_how_1": {
+    en: "Before exercise → screenshot the activity screen (kcal ≈ 0)",
+    vi: "Trước khi tập → chụp màn hình hoạt động (kcal ≈ 0)",
+    ja: "運動前 → アクティビティ画面をスクリーンショット(kcal ≈ 0)",
+  },
+  "wc.rules_how_2": {
+    en: "Do the workout (run, gym…)",
+    vi: "Thực hiện bài tập (chạy, gym...)",
+    ja: "運動を実施(ランニング、ジムなど)",
+  },
+  "wc.rules_how_3": {
+    en: "After → screenshot the result (kcal + end time)",
+    vi: "Sau khi tập → chụp màn hình kết quả (hiển thị kcal + giờ kết thúc)",
+    ja: "運動後 → 結果画面をスクリーンショット(kcal + 終了時刻)",
+  },
+  "wc.rules_example_title": {
+    en: "Example",
+    vi: "Ví dụ minh họa",
+    ja: "例",
+  },
+  "wc.rules_example_body": {
+    en: "Photo 1: 5:09 start, kcal ≈ 5 → Photo 2: 5:57 end, kcal = 185 →",
+    vi: "Ảnh 1: 5:09 bắt đầu, kcal ≈ 5 → Ảnh 2: 5:57 kết thúc, kcal = 185 →",
+    ja: "写真1: 5:09 開始, kcal ≈ 5 → 写真2: 5:57 終了, kcal = 185 →",
+  },
+  "wc.rules_example_result": {
+    en: " recorded: 180 kcal",
+    vi: " kết quả ghi nhận: 180 kcal",
+    ja: " 記録: 180 kcal",
+  },
+  "wc.rules_sec_invalid": {
+    en: "Invalid photos",
+    vi: "Ảnh không hợp lệ",
+    ja: "無効な写真",
+  },
+  "wc.rules_invalid_1": {
+    en: "Photo of another device's screen",
+    vi: "Ảnh chụp lại từ màn hình thiết bị khác",
+    ja: "他のデバイスの画面を撮影したもの",
+  },
+  "wc.rules_invalid_2": {
+    en: "Cropped photo missing date/time or kcal",
+    vi: "Ảnh bị cắt xén, không thấy ngày giờ hoặc kcal",
+    ja: "日時または kcal が見えないトリミング画像",
+  },
+  "wc.rules_invalid_3": {
+    en: "Manually entered data",
+    vi: "Dữ liệu nhập tay",
+    ja: "手入力のデータ",
+  },
+  "wc.rules_sec_submit": {
+    en: "How to submit",
+    vi: "Cách gửi kết quả",
+    ja: "提出方法",
+  },
+  "wc.rules_submit_body": {
+    en: "Upload photos to the \"Log session\" screen during the training week, by end of week at latest. (Or send to the program Slack channel as instructed.)",
+    vi: "Tải ảnh lên màn hình \"Ghi kết quả\" trong tuần tập luyện, chậm nhất cuối tuần. (Hoặc gửi vào kênh Slack của chương trình theo hướng dẫn.)",
+    ja: "トレーニング週内に「結果記録」画面へアップロード、遅くとも週末まで。(または案内に従いプログラムの Slack チャンネルへ送信)",
+  },
+  "wc.rules_devices_title": {
+    en: "Accepted devices",
+    vi: "Thiết bị được chấp nhận",
+    ja: "対応デバイス",
+  },
+  "wc.rules_dev_1": {
+    en: "Gym machine screens (treadmill, bike…)",
+    vi: "Màn hình máy tập tại gym (máy chạy bộ, xe đạp...)",
+    ja: "ジムマシンの画面(トレッドミル、バイクなど)",
+  },
+  "wc.rules_dev_2": {
+    en: "Apple Watch / Garmin / Fitbit or other smartwatches",
+    vi: "Apple Watch / Garmin / Fitbit hoặc smartwatch khác",
+    ja: "Apple Watch / Garmin / Fitbit などのスマートウォッチ",
+  },
+  "wc.rules_dev_3": {
+    en: "Strava app (outdoor running/cycling)",
+    vi: "Ứng dụng Strava (chạy/đạp xe ngoài trời)",
+    ja: "Strava アプリ(屋外ランニング/サイクリング)",
+  },
+  "wc.rules_dev_4": {
+    en: "Apple Health / Google Fit (only if none of the above are available)",
+    vi: "Apple Health / Google Fit (chỉ dùng khi không có các thiết bị trên)",
+    ja: "Apple Health / Google Fit(上記が利用できない場合のみ)",
+  },
+  "wc.rules_sec_prizes": {
+    en: "Prize structure",
+    vi: "Cơ cấu giải thưởng",
+    ja: "賞品体系",
+  },
+  "wc.rules_footer": {
+    en: "Train hard and stay healthy, everyone! 💪🔥",
+    vi: "Chúc mọi người tập luyện vui vẻ và khỏe mạnh! 💪🔥",
+    ja: "みなさん、楽しく健康に頑張りましょう！💪🔥",
+  },
+  "wc.rules_cta": {
+    en: "Start logging a session",
+    vi: "Bắt đầu ghi buổi tập",
+    ja: "セッション記録を始める",
+  },
 };
+
+export function localeOf(lang) {
+  if (lang === "vi") return "vi-VN";
+  if (lang === "ja") return "ja-JP";
+  return "en-US";
+}
+
+export function formatNum(n, lang) {
+  return Number(n || 0).toLocaleString(localeOf(lang));
+}
 
 function detectInitial() {
   try {

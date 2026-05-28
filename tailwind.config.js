@@ -13,6 +13,8 @@ export default {
           green: "#22E27A",
           greenDim: "#0E5E33",
           amber: "#F5C451",
+          blue: "#60A5FA",
+          blueDim: "#1E40AF",
           red: "#FF5A5A",
           muted: "#6B7787",
           text: "#E6EBF2",

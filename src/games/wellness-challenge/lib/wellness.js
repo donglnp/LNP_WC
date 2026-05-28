@@ -1,7 +1,7 @@
 import { supabaseHub } from "../../../lib/supabaseHub";
 
 const ENTRY_COLS =
-  "id, user_id, entry_date, exercise_type, duration_min, kcal, device, photo_before_url, photo_after_url, status, notes, created_at, updated_at";
+  "id, user_id, user_email, entry_date, exercise_type, exercise_other, duration_min, kcal, device, device_other, photo_before_url, photo_after_url, status, notes, created_at, updated_at";
 
 export async function fetchMyEntries(userId) {
   if (!supabaseHub || !userId) return [];
@@ -45,13 +45,26 @@ export async function fetchWellnessProfiles() {
 
 export async function upsertEntry(payload) {
   if (!supabaseHub) throw new Error("Supabase not configured");
+  const email = payload.user_email?.trim().toLowerCase() || null;
+  if (!payload.user_id && !email) {
+    throw new Error("Phải có người tham gia hoặc email");
+  }
   const row = {
-    user_id: payload.user_id,
+    user_id: payload.user_id || null,
+    user_email: payload.user_id ? null : email,
     entry_date: payload.entry_date,
     exercise_type: payload.exercise_type,
+    exercise_other:
+      payload.exercise_type === "other"
+        ? payload.exercise_other?.trim() || null
+        : null,
     duration_min: Number(payload.duration_min),
     kcal: Number(payload.kcal),
     device: payload.device || null,
+    device_other:
+      payload.device === "other"
+        ? payload.device_other?.trim() || null
+        : null,
     photo_before_url: payload.photo_before_url,
     photo_after_url: payload.photo_after_url,
     status: payload.status || "approved",

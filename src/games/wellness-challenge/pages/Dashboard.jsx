@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Ring from "../components/Ring";
 import { useAuth } from "../../../lib/AuthContext";
+import { useT, localeOf, formatNum } from "../../../lib/i18n";
 import { fetchMyEntries, subscribeEntries } from "../lib/wellness";
 import {
   PROGRAM,
@@ -10,7 +11,6 @@ import {
   daysLeftInWeek,
   daysUntil,
   findExercise,
-  formatDateShort,
   monthlyKpi,
   programProgress,
   programState,
@@ -20,10 +20,16 @@ import {
   weeksMetKpi,
 } from "../lib/data";
 
+function prizeAmountKey(id) {
+  return id === "streak" ? "wc.prize_amount_streak" : "wc.prize_amount_monthly";
+}
+
 export default function Dashboard() {
   const { user, profile } = useAuth();
+  const { t, lang } = useT();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const locale = localeOf(lang);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -46,12 +52,15 @@ export default function Dashboard() {
   const state = programState();
   const gender = profile?.gender;
   const monthInfo = currentMonthInfo();
+  const monthLabel = t(`wc.month_${monthInfo.month}`);
   const weekKpi = gender ? weeklyKpi(gender, monthInfo.month) : 0;
   const monthKpi = gender ? monthlyKpi(gender, monthInfo.month) : 0;
   const weekKcal = sumKcalThisWeek(entries);
   const monthKcal = sumKcalThisMonth(entries);
   const weeksHit = gender ? weeksMetKpi(entries, gender) : 0;
   const progressPct = programProgress();
+  const isUpcoming = state === "upcoming";
+  const daysToStart = isUpcoming ? daysUntil(PROGRAM.startDate) : 0;
   const recent = entries.slice(0, 3);
   const weeklyOk = weekKpi > 0 && weekKcal >= weekKpi;
   const monthlyPct =
@@ -62,8 +71,8 @@ export default function Dashboard() {
     return (
       <EmptyState
         icon="🌿"
-        title="Bạn chưa tham gia Wellness Challenge"
-        sub="Liên hệ admin để được thêm vào chương trình."
+        title={t("wc.empty_not_joined_title")}
+        sub={t("wc.empty_not_joined_sub")}
       />
     );
   }
@@ -71,26 +80,8 @@ export default function Dashboard() {
     return (
       <EmptyState
         icon="⚙️"
-        title="Cần thiết lập KPI"
-        sub="Admin chưa cập nhật giới tính cho bạn. KPI hàng tuần phụ thuộc vào giới — liên hệ admin để được kích hoạt."
-      />
-    );
-  }
-  if (state === "upcoming") {
-    const days = daysUntil(PROGRAM.startDate);
-    return (
-      <EmptyState
-        icon="🚦"
-        title={`Chương trình bắt đầu sau ${days} ngày`}
-        sub={`Ngày khởi động: ${PROGRAM.startDate.toLocaleDateString("vi-VN")}. Hãy đọc luật chơi và chuẩn bị thiết bị đo nhé.`}
-        action={
-          <Link
-            to="/wellness-challenge/rules"
-            className="rounded-md border border-arena-amber/40 text-arena-amber px-4 py-2 text-xs font-semibold tracking-wide uppercase hover:bg-arena-amber/10"
-          >
-            Đọc luật chơi
-          </Link>
-        }
+        title={t("wc.empty_need_kpi_title")}
+        sub={t("wc.empty_need_kpi_sub")}
       />
     );
   }
@@ -98,8 +89,8 @@ export default function Dashboard() {
     return (
       <EmptyState
         icon="🏁"
-        title="Chương trình đã kết thúc"
-        sub="Cảm ơn bạn đã tham gia! Xem bảng xếp hạng để biết kết quả cuối."
+        title={t("wc.empty_ended_title")}
+        sub={t("wc.empty_ended_sub")}
       />
     );
   }
@@ -109,43 +100,47 @@ export default function Dashboard() {
       {/* Hero */}
       <section className="rounded-lg border border-arena-border bg-arena-surface p-5 sm:p-7">
         <div className="flex flex-col lg:flex-row gap-7 items-start lg:items-center">
-          <Ring value={weekKcal} max={weekKpi} label="kcal tuần này" />
+          <Ring value={monthKcal} max={monthKpi} label={t("wc.ring_label_month")} />
           <div className="flex-1 min-w-0">
             <p className="text-[10px] tracking-[0.4em] uppercase text-arena-amber">
-              {monthInfo.label} · Tuần hiện tại
+              {t("wc.hero_tagline", { month: monthLabel })}
             </p>
             <h1 className="mt-2 font-display text-3xl sm:text-4xl font-semibold leading-tight">
               {weeklyOk ? (
                 <>
-                  Đã đạt KPI tuần.{" "}
-                  <span className="text-arena-amber">Tiếp lửa nào! 🔥</span>
+                  {t("wc.hero_kpi_hit")}{" "}
+                  <span className="text-arena-amber">
+                    {t("wc.hero_keep_going")}
+                  </span>
                 </>
               ) : (
                 <>
-                  Cần thêm{" "}
+                  {t("wc.hero_need_part1")}{" "}
                   <span className="text-arena-amber">
-                    {(weekKpi - weekKcal).toLocaleString("vi-VN")} kcal
+                    {formatNum(weekKpi - weekKcal, lang)} kcal
                   </span>{" "}
-                  để đạt KPI tuần.
+                  {t("wc.hero_need_part2")}
                 </>
               )}
             </h1>
             <p className="mt-2 text-sm text-arena-muted">
-              Mục tiêu tuần: {weekKpi.toLocaleString("vi-VN")} kcal · Còn{" "}
-              {daysLeftInWeek()} ngày trong tuần
+              {t("wc.hero_target_line", {
+                kpi: formatNum(weekKpi, lang),
+                days: daysLeftInWeek(),
+              })}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 to="/wellness-challenge/history"
                 className="inline-flex items-center gap-2 rounded-md border border-arena-border hover:border-arena-amber/60 px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-arena-muted hover:text-arena-text"
               >
-                Xem lịch sử
+                {t("wc.btn_history")}
               </Link>
               <Link
                 to="/wellness-challenge/rules"
                 className="inline-flex items-center gap-2 rounded-md border border-arena-border hover:border-arena-amber/60 px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-arena-muted hover:text-arena-text"
               >
-                Luật chơi
+                {t("wc.btn_rules")}
               </Link>
             </div>
           </div>
@@ -155,31 +150,38 @@ export default function Dashboard() {
       {/* Stats */}
       <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Tháng hiện tại"
-          value={monthKcal.toLocaleString("vi-VN")}
+          label={t("wc.stat_this_month")}
+          value={formatNum(monthKcal, lang)}
           unit="kcal"
-          sub={`${monthlyPct}% mục tiêu ${monthKpi.toLocaleString("vi-VN")}`}
+          sub={t("wc.stat_month_sub", {
+            pct: monthlyPct,
+            kpi: formatNum(monthKpi, lang),
+          })}
           tone={monthKcal >= monthKpi ? "green" : "amber"}
         />
         <StatCard
-          label="Số tuần đạt KPI"
+          label={t("wc.stat_weeks_hit")}
           value={`${weeksHit}`}
-          unit="tuần"
-          sub="trong 12 tuần chương trình"
+          unit={t("wc.stat_weeks_unit")}
+          sub={t("wc.stat_weeks_sub")}
           tone="amber"
         />
         <StatCard
-          label="Tiến độ chương trình"
-          value={`${progressPct}%`}
+          label={t("wc.stat_progress")}
+          value={isUpcoming ? `D-${daysToStart}` : `${progressPct}%`}
           unit=""
-          sub="Tháng 6 → Tháng 8 năm 2026"
-          tone="muted"
+          sub={
+            isUpcoming
+              ? t("wc.stat_progress_upcoming", { days: daysToStart })
+              : t("wc.stat_progress_sub")
+          }
+          tone={isUpcoming ? "amber" : "muted"}
         />
         <StatCard
-          label="Giới tính · KPI nhóm"
-          value={gender === "male" ? "Nam" : "Nữ"}
+          label={t("wc.stat_gender_kpi")}
+          value={gender === "male" ? t("wc.gender_male") : t("wc.gender_female")}
           unit=""
-          sub={`${weekKpi.toLocaleString("vi-VN")} kcal/tuần`}
+          sub={t("wc.stat_per_week", { kpi: formatNum(weekKpi, lang) })}
           tone="muted"
         />
       </section>
@@ -187,9 +189,9 @@ export default function Dashboard() {
       {/* 3-month track */}
       <section className="rounded-lg border border-arena-border bg-arena-surface p-5 sm:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold">Lộ trình 3 tháng</h2>
+          <h2 className="text-sm font-semibold">{t("wc.track_title")}</h2>
           <span className="text-[10px] tracking-[0.3em] uppercase text-arena-muted">
-            KPI tăng dần
+            {t("wc.track_subtitle")}
           </span>
         </div>
         <div className="grid sm:grid-cols-3 gap-3">
@@ -206,7 +208,9 @@ export default function Dashboard() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <p className="font-display text-lg font-semibold">{m.label}</p>
+                  <p className="font-display text-lg font-semibold">
+                    {t(`wc.month_${m.month}`)}
+                  </p>
                   <span
                     className={`text-[10px] tracking-[0.25em] uppercase ${
                       isCurrent
@@ -216,14 +220,20 @@ export default function Dashboard() {
                         : "text-arena-muted"
                     }`}
                   >
-                    {isCurrent ? "Đang diễn ra" : past ? "Đã qua" : "Sắp tới"}
+                    {isCurrent
+                      ? t("wc.track_current")
+                      : past
+                      ? t("wc.track_past")
+                      : t("wc.track_upcoming")}
                   </span>
                 </div>
                 <p className="mt-2 font-mono text-sm text-arena-text">
-                  {weeklyKpi(gender, m.month).toLocaleString("vi-VN")} / tuần
+                  {formatNum(weeklyKpi(gender, m.month), lang)} {t("wc.track_per_week")}
                 </p>
                 <p className="text-xs text-arena-muted">
-                  Tháng: {monthlyKpi(gender, m.month).toLocaleString("vi-VN")} kcal
+                  {t("wc.track_month_total", {
+                    kpi: formatNum(monthlyKpi(gender, m.month), lang),
+                  })}
                 </p>
               </div>
             );
@@ -234,26 +244,30 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
         <section className="rounded-lg border border-arena-border bg-arena-surface">
           <div className="flex items-center justify-between px-5 py-4 border-b border-arena-border">
-            <h2 className="text-sm font-semibold">Buổi tập gần đây</h2>
+            <h2 className="text-sm font-semibold">{t("wc.recent_title")}</h2>
             <Link
               to="/wellness-challenge/history"
               className="text-[10px] tracking-[0.25em] uppercase text-arena-muted hover:text-arena-text"
             >
-              Xem tất cả →
+              {t("wc.recent_view_all")}
             </Link>
           </div>
           {loading ? (
             <p className="px-5 py-8 text-sm text-arena-muted text-center">
-              Đang tải…
+              {t("wc.loading")}
             </p>
           ) : recent.length === 0 ? (
             <p className="px-5 py-8 text-sm text-arena-muted text-center">
-              Chưa có buổi tập nào — admin sẽ ghi nhận sau khi bạn gửi ảnh qua Slack.
+              {t("wc.recent_empty")}
             </p>
           ) : (
             <ul className="divide-y divide-arena-border/60">
               {recent.map((e) => {
                 const ex = findExercise(e.exercise_type);
+                const dateShort = new Date(e.entry_date).toLocaleDateString(
+                  locale,
+                  { day: "2-digit", month: "2-digit" }
+                );
                 return (
                   <li
                     key={e.id}
@@ -261,13 +275,15 @@ export default function Dashboard() {
                   >
                     <span className="text-2xl">{ex.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{ex.label}</p>
+                      <p className="text-sm font-medium">
+                        {t(`wc.ex_${ex.id}`)}
+                      </p>
                       <p className="text-xs text-arena-muted">
-                        {formatDateShort(e.entry_date)} · {e.duration_min} phút
+                        {dateShort} · {e.duration_min} {t("wc.minutes_short")}
                       </p>
                     </div>
                     <p className="font-mono text-arena-amber font-semibold">
-                      {e.kcal.toLocaleString("vi-VN")}
+                      {formatNum(e.kcal, lang)}
                       <span className="text-arena-muted text-xs ml-1">kcal</span>
                     </p>
                   </li>
@@ -279,16 +295,16 @@ export default function Dashboard() {
 
         <section className="rounded-lg border border-arena-border bg-arena-surface">
           <div className="px-5 py-4 border-b border-arena-border">
-            <h2 className="text-sm font-semibold">🏆 Cơ cấu giải thưởng</h2>
+            <h2 className="text-sm font-semibold">{t("wc.prizes_title")}</h2>
           </div>
           <ul className="divide-y divide-arena-border/60">
             {PRIZES.map((p) => (
               <li key={p.id} className="px-5 py-4 flex items-start gap-4">
                 <span className="text-2xl">{p.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{p.title}</p>
+                  <p className="text-sm font-medium">{t(`wc.prize_${p.id}`)}</p>
                   <p className="text-xs text-arena-amber font-mono mt-1">
-                    {p.amount}
+                    {t(prizeAmountKey(p.id))}
                   </p>
                 </div>
               </li>

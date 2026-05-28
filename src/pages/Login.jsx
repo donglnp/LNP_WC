@@ -29,9 +29,9 @@ export default function Login() {
       <aside className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-arena-green shadow-[0_0_8px_#22E27A]" />
+            <span className="w-2 h-2 rounded-full bg-arena-blue shadow-[0_0_8px_#60A5FA]" />
             <span className="font-display font-semibold tracking-tight">
-              LNP Hub<span className="text-arena-green">.</span>
+              LNP Hub<span className="text-arena-blue">.</span>
             </span>
           </div>
           <LanguageSwitcher variant="login" />
@@ -42,7 +42,7 @@ export default function Login() {
             {t("login.headline_1")}
             <br />
             <span>{t("login.headline_2")}</span>{" "}
-            <span className="text-arena-green">{t("login.headline_3")}</span>
+            <span className="text-arena-blue">{t("login.headline_3")}</span>
           </h1>
           <p className="mt-6 text-sm text-arena-muted leading-relaxed">
             {t("login.tagline")}
@@ -103,17 +103,17 @@ export default function Login() {
       </aside>
 
       <div className="relative hidden lg:block overflow-hidden border-l border-arena-border bg-arena-bg">
-        <div className="absolute inset-0 bg-gradient-to-br from-arena-green/10 via-arena-bg to-arena-bg" />
+        <div className="absolute inset-0 bg-gradient-to-br from-arena-blue/10 via-arena-bg to-arena-bg" />
         <div className="absolute inset-0 grid-bg opacity-40" />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 70% 30%, rgba(34, 226, 122, 0.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(34, 226, 122, 0.08), transparent 50%)",
+              "radial-gradient(circle at 70% 30%, rgba(96, 165, 250, 0.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(96, 165, 250, 0.08), transparent 50%)",
           }}
         />
         <div className="absolute bottom-8 right-8 text-right">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-arena-green">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-arena-blue">
             {t("common.system_online")}
           </p>
           <p className="font-display text-5xl font-semibold text-arena-text/80 tracking-tight">
@@ -121,16 +121,38 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-          <div className="grid grid-cols-3 gap-3 opacity-60">
-            {["⚽", "💪", "🧩", "🎯", "🏆", "🎲"].map((icon, i) => (
-              <div
-                key={i}
-                className="w-16 h-16 rounded-lg border border-arena-border bg-arena-surface/60 grid place-items-center text-2xl"
-              >
-                {icon}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[680px]">
+          <div className="absolute -inset-6 rounded-[28px] bg-arena-blue/20 blur-3xl opacity-70" aria-hidden="true" />
+          <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-arena-blue/60 via-arena-blue/10 to-transparent opacity-80" aria-hidden="true" />
+
+          <div className="relative rounded-[22px] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+            <img
+              src="/team.jpg"
+              alt="LNP team"
+              className="block w-full h-auto object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-arena-bg/85 via-arena-bg/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-arena-blue/10 via-transparent to-transparent mix-blend-overlay pointer-events-none" />
+
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/30 backdrop-blur px-2.5 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-arena-blue shadow-[0_0_8px_#60A5FA] animate-pulse" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-white/80">Live · Crew</span>
+            </div>
+
+            <div className="absolute bottom-0 inset-x-0 p-5">
+              <div>
+                <p className="text-[10px] tracking-[0.4em] uppercase text-arena-blue/90">The LNP Family</p>
+                <p className="mt-1 text-xs text-white/60">Phan Thiết · 2026</p>
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="absolute -top-3 -right-3 rotate-6 rounded-md border border-white/15 bg-arena-surface/80 backdrop-blur px-2.5 py-1 shadow-lg">
+            <span className="text-[10px] font-mono tracking-widest text-arena-blue">#WeAreLNP</span>
+          </div>
+          <div className="absolute -bottom-4 -left-4 -rotate-3 rounded-md border border-white/10 bg-black/40 backdrop-blur px-2.5 py-1 shadow-lg">
+            <span className="text-[10px] font-mono tracking-widest text-white/70">v2026.05</span>
           </div>
         </div>
       </div>
