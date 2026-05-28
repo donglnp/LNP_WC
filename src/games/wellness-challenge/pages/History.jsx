@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../../lib/AuthContext";
 import { useT, localeOf, formatNum } from "../../../lib/i18n";
-import { fetchMyEntries, subscribeEntries } from "../lib/wellness";
+import {
+  fetchMyEntries,
+  subscribeEntries,
+  deleteMyPendingEntry,
+} from "../lib/wellness";
 import {
   PROGRAM,
   findDevice,
@@ -102,6 +106,7 @@ export default function History() {
                 <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_device")}</th>
                 <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_photos")}</th>
                 <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_status")}</th>
+                <th className="px-4 py-3 text-right font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -152,6 +157,23 @@ export default function History() {
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={e.status} t={t} />
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {e.status === "pending" && e.user_id === user?.id ? (
+                        <button
+                          onClick={async () => {
+                            if (!confirm(t("wc.history_confirm_delete"))) return;
+                            try {
+                              await deleteMyPendingEntry(user.id, e.id);
+                            } catch (err) {
+                              alert(err.message || String(err));
+                            }
+                          }}
+                          className="text-xs text-arena-red hover:underline"
+                        >
+                          {t("wc.history_btn_delete")}
+                        </button>
+                      ) : null}
                     </td>
                   </tr>
                 );

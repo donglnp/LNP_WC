@@ -478,6 +478,101 @@ const dict = {
     ja: "ランキング",
   },
   "wc.tab_rules": { en: "Rules", vi: "Luật chơi", ja: "ルール" },
+  "wc.tab_log": { en: "Log workout", vi: "Ghi buổi tập", ja: "記録する" },
+
+  // ---------- Wellness: self-submit (Log page) ----------
+  "wc.btn_log": { en: "Log workout", vi: "Ghi buổi tập", ja: "記録する" },
+  "wc.log_eyebrow": { en: "Self-submit", vi: "Tự ghi nhận", ja: "自己申告" },
+  "wc.log_title": {
+    en: "Log a workout",
+    vi: "Ghi nhận buổi tập",
+    ja: "ワークアウトを記録",
+  },
+  "wc.log_subtitle": {
+    en: "Submit your session. Admin will review and attach photos.",
+    vi: "Gửi buổi tập của bạn. Admin sẽ duyệt và đính kèm ảnh sau.",
+    ja: "セッションを送信してください。管理者が確認し、写真を添付します。",
+  },
+  "wc.log_pending_hint": {
+    en: "Entry will be marked Pending until an admin approves it.",
+    vi: "Buổi tập sẽ ở trạng thái Chờ duyệt cho tới khi admin duyệt.",
+    ja: "管理者が承認するまで「保留中」になります。",
+  },
+  "wc.log_field_date": { en: "Date", vi: "Ngày tập", ja: "日付" },
+  "wc.log_field_exercise": { en: "Exercise", vi: "Loại hình", ja: "種目" },
+  "wc.log_field_exercise_other": {
+    en: "Specify exercise",
+    vi: "Tên môn cụ thể",
+    ja: "種目を入力",
+  },
+  "wc.log_field_duration": {
+    en: "Minutes (≤120)",
+    vi: "Phút (≤120)",
+    ja: "分 (≤120)",
+  },
+  "wc.log_field_kcal": { en: "Calories (kcal)", vi: "Calo (kcal)", ja: "カロリー (kcal)" },
+  "wc.log_field_device": { en: "Device", vi: "Thiết bị", ja: "デバイス" },
+  "wc.log_field_device_other": {
+    en: "Specify device",
+    vi: "Tên thiết bị cụ thể",
+    ja: "デバイスを入力",
+  },
+  "wc.log_field_photo_before": {
+    en: "Photo BEFORE URL (optional)",
+    vi: "URL ảnh TRƯỚC khi tập (tuỳ chọn)",
+    ja: "運動前の写真URL (任意)",
+  },
+  "wc.log_field_photo_after": {
+    en: "Photo AFTER URL (optional)",
+    vi: "URL ảnh SAU khi tập (tuỳ chọn)",
+    ja: "運動後の写真URL (任意)",
+  },
+  "wc.log_field_notes": {
+    en: "Notes (optional)",
+    vi: "Ghi chú (tuỳ chọn)",
+    ja: "メモ (任意)",
+  },
+  "wc.log_ph_exercise_other": {
+    en: "e.g. Yoga, Pickleball…",
+    vi: "VD: Yoga, Pickleball…",
+    ja: "例: ヨガ、ピックルボール…",
+  },
+  "wc.log_ph_device_other": {
+    en: "e.g. Huawei Watch…",
+    vi: "VD: Huawei Watch…",
+    ja: "例: Huawei Watch…",
+  },
+  "wc.log_ph_notes": {
+    en: "Slack link, comment…",
+    vi: "Link Slack, ghi chú…",
+    ja: "Slackリンク、メモ…",
+  },
+  "wc.log_btn_cancel": { en: "Cancel", vi: "Huỷ", ja: "キャンセル" },
+  "wc.log_btn_submit": { en: "Submit", vi: "Gửi", ja: "送信" },
+  "wc.log_btn_saving": { en: "Saving…", vi: "Đang lưu…", ja: "保存中…" },
+  "wc.log_err_date": { en: "Pick a date", vi: "Chọn ngày", ja: "日付を選択" },
+  "wc.log_err_exercise_other": {
+    en: "Enter exercise name",
+    vi: "Nhập tên môn",
+    ja: "種目名を入力",
+  },
+  "wc.log_err_device_other": {
+    en: "Enter device name",
+    vi: "Nhập tên thiết bị",
+    ja: "デバイス名を入力",
+  },
+  "wc.log_err_duration": {
+    en: "1–120 minutes",
+    vi: "1–120 phút",
+    ja: "1〜120分",
+  },
+  "wc.log_err_kcal": { en: "Required > 0", vi: "Bắt buộc > 0", ja: "0より大きい値" },
+  "wc.history_btn_delete": { en: "Delete", vi: "Xoá", ja: "削除" },
+  "wc.history_confirm_delete": {
+    en: "Delete this pending entry?",
+    vi: "Xoá buổi tập đang chờ duyệt này?",
+    ja: "保留中のこの記録を削除しますか？",
+  },
 
   // ---------- Wellness: months / common ----------
   "wc.month_6": { en: "June", vi: "Tháng 6", ja: "6月" },

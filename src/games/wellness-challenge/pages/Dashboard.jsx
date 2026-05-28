@@ -131,6 +131,12 @@ export default function Dashboard() {
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
+                to="/wellness-challenge/log"
+                className="inline-flex items-center gap-2 rounded-md bg-arena-amber text-arena-bg px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase hover:brightness-110"
+              >
+                {t("wc.btn_log")}
+              </Link>
+              <Link
                 to="/wellness-challenge/history"
                 className="inline-flex items-center gap-2 rounded-md border border-arena-border hover:border-arena-amber/60 px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-arena-muted hover:text-arena-text"
               >

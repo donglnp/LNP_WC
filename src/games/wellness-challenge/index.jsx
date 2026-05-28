@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Leaderboard from "./pages/Leaderboard";
+import Log from "./pages/Log";
 import Rules from "./pages/Rules";
 import { useAuth } from "../../lib/AuthContext";
 
@@ -12,6 +13,7 @@ export default function WellnessChallenge() {
     <Routes>
       <Route element={<Layout user={user} />}>
         <Route index element={<Dashboard />} />
+        <Route path="log" element={<Log />} />
         <Route path="history" element={<History />} />
         <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="rules" element={<Rules />} />

@@ -87,6 +87,83 @@ export async function upsertEntry(payload) {
   return data;
 }
 
+// User self-submit: always pending, no photos, no status override.
+export async function createMyEntry(userId, payload) {
+  if (!supabaseHub) throw new Error("Supabase not configured");
+  if (!userId) throw new Error("Cần đăng nhập");
+  const row = {
+    user_id: userId,
+    user_email: null,
+    entry_date: payload.entry_date,
+    exercise_type: payload.exercise_type,
+    exercise_other:
+      payload.exercise_type === "other"
+        ? payload.exercise_other?.trim() || null
+        : null,
+    duration_min: Number(payload.duration_min),
+    kcal: Number(payload.kcal),
+    device: payload.device || null,
+    device_other:
+      payload.device === "other"
+        ? payload.device_other?.trim() || null
+        : null,
+    photo_before_url: payload.photo_before_url?.trim() || null,
+    photo_after_url: payload.photo_after_url?.trim() || null,
+    status: "pending",
+    notes: payload.notes || null,
+  };
+  const { data, error } = await supabaseHub
+    .from("wellness_entries")
+    .insert(row)
+    .select(ENTRY_COLS)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateMyPendingEntry(userId, id, payload) {
+  if (!supabaseHub) throw new Error("Supabase not configured");
+  const patch = {
+    entry_date: payload.entry_date,
+    exercise_type: payload.exercise_type,
+    exercise_other:
+      payload.exercise_type === "other"
+        ? payload.exercise_other?.trim() || null
+        : null,
+    duration_min: Number(payload.duration_min),
+    kcal: Number(payload.kcal),
+    device: payload.device || null,
+    device_other:
+      payload.device === "other"
+        ? payload.device_other?.trim() || null
+        : null,
+    photo_before_url: payload.photo_before_url?.trim() || null,
+    photo_after_url: payload.photo_after_url?.trim() || null,
+    notes: payload.notes || null,
+  };
+  const { data, error } = await supabaseHub
+    .from("wellness_entries")
+    .update(patch)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .select(ENTRY_COLS)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteMyPendingEntry(userId, id) {
+  if (!supabaseHub) throw new Error("Supabase not configured");
+  const { error } = await supabaseHub
+    .from("wellness_entries")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("status", "pending");
+  if (error) throw error;
+}
+
 export async function deleteEntry(id) {
   if (!supabaseHub) throw new Error("Supabase not configured");
   const { error } = await supabaseHub.from("wellness_entries").delete().eq("id", id);

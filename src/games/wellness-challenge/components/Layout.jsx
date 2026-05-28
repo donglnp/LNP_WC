@@ -10,6 +10,7 @@ export default function WellnessLayout({ user }) {
   const { t } = useT();
   const TABS = [
     { to: "/wellness-challenge", label: t("wc.tab_overview"), end: true },
+    { to: "/wellness-challenge/log", label: t("wc.tab_log") },
     { to: "/wellness-challenge/history", label: t("wc.tab_history") },
     { to: "/wellness-challenge/leaderboard", label: t("wc.tab_leaderboard") },
     { to: "/wellness-challenge/rules", label: t("wc.tab_rules") },

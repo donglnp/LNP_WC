@@ -138,6 +138,33 @@ alter table public.wellness_entries
   add column if not exists exercise_other text,
   add column if not exists device_other text;
 
+-- ---------- self-submit (users log their own entries) ----------
+-- Photos are now optional: users submit without photos; admin attaches them on review.
+alter table public.wellness_entries
+  alter column photo_before_url drop not null,
+  alter column photo_after_url drop not null;
+
+-- Users can insert their OWN entries, but only as 'pending' and only for their auth.uid().
+drop policy if exists "user insert own pending" on public.wellness_entries;
+create policy "user insert own pending"
+  on public.wellness_entries for insert to authenticated
+  with check (user_id = auth.uid() and status = 'pending');
+
+-- Users can update their OWN entries while still pending. Once admin moves it
+-- to approved/rejected, only admin can edit (status must stay pending in WITH CHECK,
+-- so user cannot self-approve).
+drop policy if exists "user update own pending" on public.wellness_entries;
+create policy "user update own pending"
+  on public.wellness_entries for update to authenticated
+  using (user_id = auth.uid() and status = 'pending')
+  with check (user_id = auth.uid() and status = 'pending');
+
+-- Users can delete their OWN entries while still pending.
+drop policy if exists "user delete own pending" on public.wellness_entries;
+create policy "user delete own pending"
+  on public.wellness_entries for delete to authenticated
+  using (user_id = auth.uid() and status = 'pending');
+
 -- ---------- bootstrap first admin ----------
 -- AFTER you log in once via Google, find your auth.users id and run:
 --   update public.profiles set is_admin = true where email = 'your@lnp-technologies.com';
