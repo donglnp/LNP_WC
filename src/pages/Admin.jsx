@@ -101,17 +101,6 @@ export default function Admin() {
               {ev.label}
             </button>
           ))}
-          <span className="mx-2 self-center text-arena-border">|</span>
-          <button
-            onClick={() => setSection("admins")}
-            className={`px-4 py-2 text-sm border-b-2 transition ${
-              section === "admins"
-                ? "border-arena-blue text-arena-blue"
-                : "border-transparent text-arena-muted hover:text-arena-text"
-            }`}
-          >
-            Quản trị viên
-          </button>
         </div>
       </header>
 
@@ -156,14 +145,8 @@ export default function Admin() {
               <UsersTab profiles={profiles} onChange={handleProfileChange} />
             )}
           </>
-        ) : section === "wc" ? (
-          <WorldCupAdmin />
         ) : (
-          <AdminsTab
-            profiles={profiles}
-            currentUserId={user?.id}
-            onChange={handleProfileChange}
-          />
+          <WorldCupAdmin />
         )}
       </main>
 
@@ -213,105 +196,6 @@ function WorldCupAdmin() {
       <p className="text-sm text-arena-muted">
         Khu vực quản lý dự đoán, kết quả trận và đội hình sẽ sớm ra mắt.
       </p>
-    </div>
-  );
-}
-
-// ============================================================
-// Admins tab — global admin role management
-// ============================================================
-function AdminsTab({ profiles, currentUserId, onChange }) {
-  const [search, setSearch] = useState("");
-  const list = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return profiles
-      .filter(
-        (p) =>
-          !q ||
-          p.full_name?.toLowerCase().includes(q) ||
-          p.email?.toLowerCase().includes(q)
-      )
-      .sort((a, b) => {
-        if (!!b.is_admin - !!a.is_admin !== 0) return !!b.is_admin - !!a.is_admin;
-        return (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "");
-      });
-  }, [profiles, search]);
-
-  const adminCount = profiles.filter((p) => p.is_admin).length;
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="font-display text-2xl font-semibold mr-auto">
-          Quản trị viên · {adminCount}
-        </h2>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm theo tên / email…"
-          className="input max-w-xs"
-        />
-      </div>
-      <p className="text-sm text-arena-muted">
-        Quản trị viên có toàn quyền trên mọi event. Bất kỳ admin nào cũng có thể
-        cấp hoặc thu hồi quyền admin của người khác.
-      </p>
-
-      <div className="rounded-lg border border-arena-border bg-arena-surface overflow-x-auto">
-        <table className="w-full text-sm min-w-[640px]">
-          <thead>
-            <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
-              <th className="px-4 py-3 text-left">Tên</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-center">Admin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((p) => (
-              <tr
-                key={p.id}
-                className="border-b border-arena-border/60 last:border-0"
-              >
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full border border-arena-border bg-arena-card grid place-items-center text-[10px] font-semibold overflow-hidden">
-                      {p.avatar_url ? (
-                        <img
-                          src={p.avatar_url}
-                          alt=""
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        (p.full_name || "?")
-                          .split(" ")
-                          .map((s) => s[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()
-                      )}
-                    </span>
-                    <span>{p.full_name || "—"}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-arena-muted text-xs">{p.email}</td>
-                <td className="px-4 py-3 text-center">
-                  <Toggle
-                    checked={!!p.is_admin}
-                    onChange={(v) => onChange(p.id, { is_admin: v })}
-                    disabled={p.id === currentUserId}
-                    title={
-                      p.id === currentUserId
-                        ? "Không thể tự huỷ quyền admin của mình"
-                        : ""
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../../lib/AuthContext";
-import { useT, formatNum } from "../../../lib/i18n";
+import { useT, localeOf, formatNum } from "../../../lib/i18n";
 import {
   fetchAllEntries,
   fetchWellnessProfiles,
@@ -8,6 +8,8 @@ import {
 } from "../lib/wellness";
 import {
   currentMonthInfo,
+  findDevice,
+  findExercise,
   monthlyKpi,
   sumKcalInMonth,
   sumKcalTotal,
@@ -17,10 +19,12 @@ import {
 export default function Leaderboard() {
   const { user } = useAuth();
   const { t, lang } = useT();
+  const locale = localeOf(lang);
   const [profiles, setProfiles] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [gender, setGender] = useState("all");
+  const [selectedUser, setSelectedUser] = useState(null);
   const monthInfo = currentMonthInfo();
   const [month, setMonth] = useState(
     [6, 7, 8].includes(monthInfo.month) ? String(monthInfo.month) : "all"
@@ -182,7 +186,8 @@ export default function Leaderboard() {
                 return (
                   <tr
                     key={u.id}
-                    className={`border-b border-arena-border/60 last:border-0 ${
+                    onClick={() => setSelectedUser(u)}
+                    className={`border-b border-arena-border/60 last:border-0 cursor-pointer hover:bg-arena-card/50 ${
                       isMe ? "bg-arena-amber/5" : ""
                     }`}
                   >
@@ -245,7 +250,162 @@ export default function Leaderboard() {
           </table>
         )}
       </section>
+
+      {selectedUser && (
+        <UserHistoryModal
+          user={selectedUser}
+          entries={entries.filter((e) => e.user_id === selectedUser.id)}
+          onClose={() => setSelectedUser(null)}
+          t={t}
+          lang={lang}
+          locale={locale}
+        />
+      )}
     </div>
+  );
+}
+
+function UserHistoryModal({ user, entries, onClose, t, lang, locale }) {
+  const total = entries.reduce((s, e) => s + (e.kcal || 0), 0);
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-arena-surface border border-arena-border rounded-lg w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center justify-between px-5 py-4 border-b border-arena-border">
+          <div>
+            <p className="text-[10px] tracking-[0.4em] uppercase text-arena-amber">
+              {t("wc.history_header_meta", {
+                count: entries.length,
+                kcal: formatNum(total, lang),
+              })}
+            </p>
+            <h2 className="font-display text-xl font-semibold mt-1">{user.name}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-arena-muted hover:text-arena-text text-2xl leading-none px-2"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </header>
+
+        <div className="overflow-auto">
+          {entries.length === 0 ? (
+            <p className="py-12 text-sm text-arena-muted text-center">
+              {t("wc.history_empty")}
+            </p>
+          ) : (
+            <table className="w-full text-sm min-w-[600px]">
+              <thead className="sticky top-0 bg-arena-surface">
+                <tr className="text-[10px] tracking-[0.25em] uppercase text-arena-muted border-b border-arena-border">
+                  <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_date")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_type")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("wc.history_col_duration")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("wc.history_col_kcal")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_device")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_photos")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("wc.history_col_status")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((e) => {
+                  const ex = findExercise(e.exercise_type);
+                  const dev = findDevice(e.device);
+                  const dateStr = new Date(e.entry_date).toLocaleDateString(locale, {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  });
+                  return (
+                    <tr
+                      key={e.id}
+                      className="border-b border-arena-border/60 last:border-0"
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap text-arena-muted">{dateStr}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="text-lg">{ex.icon}</span>
+                          {e.exercise_type === "other" && e.exercise_other
+                            ? e.exercise_other
+                            : t(`wc.ex_${ex.id}`)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono">
+                        {e.duration_min}{" "}
+                        <span className="text-arena-muted">{t("wc.minutes_short")}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-arena-amber font-semibold">
+                        {formatNum(e.kcal, lang)}
+                      </td>
+                      <td className="px-4 py-3 text-arena-muted text-xs">
+                        {e.device === "other" && e.device_other
+                          ? e.device_other
+                          : dev
+                          ? t(`wc.dev_${dev.id}`)
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          <ModalPhotoChip url={e.photo_before_url} />
+                          <ModalPhotoChip url={e.photo_after_url} />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <ModalStatusBadge status={e.status} t={t} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalPhotoChip({ url }) {
+  if (!url) return <span className="text-arena-muted">—</span>;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      title={url}
+      className="inline-flex items-center justify-center w-8 h-8 rounded border border-arena-border hover:border-arena-amber hover:text-arena-amber text-arena-muted text-sm transition"
+    >
+      🔗
+    </a>
+  );
+}
+
+function ModalStatusBadge({ status, t }) {
+  const map = {
+    approved: {
+      label: t("wc.status_approved"),
+      cls: "text-arena-green border-arena-green/30 bg-arena-green/10",
+    },
+    pending: {
+      label: t("wc.status_pending"),
+      cls: "text-arena-amber border-arena-amber/30 bg-arena-amber/10",
+    },
+    rejected: {
+      label: t("wc.status_rejected"),
+      cls: "text-arena-red border-arena-red/30 bg-arena-red/10",
+    },
+  };
+  const m = map[status] || map.pending;
+  return (
+    <span className={`text-[10px] tracking-[0.15em] uppercase px-2 py-1 rounded border ${m.cls}`}>
+      {m.label}
+    </span>
   );
 }
 
