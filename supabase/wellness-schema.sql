@@ -60,10 +60,15 @@ create index if not exists wellness_entries_date_idx on public.wellness_entries 
 alter table public.wellness_entries enable row level security;
 
 -- All authenticated users can read approved entries (for leaderboard + their own).
+-- Admins can read everything (pending/rejected) so they can review submissions.
 drop policy if exists "read entries" on public.wellness_entries;
 create policy "read entries"
   on public.wellness_entries for select to authenticated
-  using (status = 'approved' or user_id = auth.uid());
+  using (
+    status = 'approved'
+    or user_id = auth.uid()
+    or exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+  );
 
 -- Only admins can insert/update/delete.
 drop policy if exists "admin insert entries" on public.wellness_entries;
